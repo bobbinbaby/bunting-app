@@ -13,14 +13,13 @@ body { font-family:'Poppins',sans-serif; background:var(--bg); min-height:100vh;
 body::before { content:''; position:fixed; inset:0; pointer-events:none;
   background-image: repeating-linear-gradient(0deg,transparent,transparent 38px,rgba(244,168,204,0.13) 38px,rgba(244,168,204,0.13) 76px),
   repeating-linear-gradient(90deg,transparent,transparent 38px,rgba(244,168,204,0.13) 38px,rgba(244,168,204,0.13) 76px); }
-
-/* NAV */
 .nav { background:#fff; border-bottom:2px solid var(--pk-l); padding:14px 24px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; box-shadow:0 2px 12px var(--sh); }
 .nav-logo { font-size:18px; font-weight:900; color:var(--pk-d); letter-spacing:-0.5px; }
 .nav-logo em { font-style:normal; color:var(--yw-d); -webkit-text-stroke:1px var(--pk-d); }
 .nav-right { display:flex; align-items:center; gap:12px; }
 .nav-email { font-size:12px; color:var(--pk-d); opacity:.6; }
 .btn { font-family:'Poppins',sans-serif; font-size:12px; font-weight:700; padding:8px 16px; border:none; border-radius:50px; cursor:pointer; transition:all .16s; display:inline-flex; align-items:center; gap:5px; white-space:nowrap; }
+.btn:active { transform:scale(.97); }
 .btn-pink { background:var(--pk-d); color:#fff; }
 .btn-pink:hover { filter:brightness(1.06); }
 .btn-yellow { background:var(--yw); color:var(--pk-d); border:2px solid var(--yw-d); }
@@ -29,20 +28,14 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none;
 .btn-ghost:hover { border-color:var(--pk-d); background:var(--pk-l); }
 .btn-sm { font-size:11px; padding:5px 11px; }
 .btn:disabled { opacity:.5; cursor:not-allowed; }
-
 .app { max-width:980px; margin:0 auto; padding:24px 16px 80px; position:relative; z-index:1; }
-
-/* CUSTOMER LINK BANNER */
 .link-banner { background:#fff; border:2px solid var(--pk-l); border-radius:20px; padding:18px 20px; margin-bottom:20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap; box-shadow:0 4px 20px var(--sh); }
 .link-label { font-size:11px; font-weight:700; color:var(--pk-d); text-transform:uppercase; letter-spacing:.7px; white-space:nowrap; }
 .link-url { flex:1; font-size:13px; font-weight:600; color:var(--pk-d); background:var(--bg); border:2px solid var(--pk-l); border-radius:10px; padding:8px 12px; font-family:monospace; min-width:200px; word-break:break-all; }
 .link-actions { display:flex; gap:8px; }
-
-/* CARD */
 .card { background:#fff; border-radius:20px; padding:18px; margin-bottom:16px; box-shadow:0 4px 20px var(--sh); border:2px solid var(--pk-l); }
 .card-title { font-size:11px; font-weight:700; color:var(--pk-d); text-transform:uppercase; letter-spacing:.8px; margin-bottom:14px; display:flex; align-items:center; justify-content:space-between; }
-
-/* FABRICS */
+/* Fabric grid — internal class names stay as 'fabric' for JS, only display text changes */
 .fabrics-grid { display:flex; flex-wrap:wrap; gap:10px; align-items:flex-start; }
 .fabric-card { width:88px; display:flex; flex-direction:column; align-items:center; gap:4px; }
 .fabric-img-wrap { width:74px; height:74px; border-radius:12px; border:2.5px solid var(--pk-l); overflow:hidden; position:relative; cursor:pointer; transition:border-color .2s,transform .15s,opacity .2s; }
@@ -71,11 +64,7 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none;
 .sel-bar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:11px 0 2px; border-top:1.5px solid var(--pk-l); margin-top:12px; }
 .sel-count { font-size:11px; font-weight:700; color:var(--pk-d); opacity:.7; }
 .sel-actions { display:flex; gap:6px; margin-left:auto; }
-
-/* UPLOAD PROGRESS */
 .upload-progress { font-size:12px; color:var(--pk-d); opacity:.7; margin-top:10px; display:none; }
-
-/* TAG MODAL */
 .modal-back { display:none; position:fixed; inset:0; background:rgba(249,200,224,0.6); z-index:200; align-items:center; justify-content:center; }
 .modal-back.open { display:flex; }
 .modal { background:#fff; border-radius:20px; padding:22px; width:min(340px,92vw); border:2px solid var(--pk-l); max-height:90vh; overflow-y:auto; box-shadow:0 12px 40px var(--sh); }
@@ -93,12 +82,8 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none;
 .quick-tag { font-size:11px; font-weight:600; padding:4px 10px; border-radius:50px; background:var(--bg); color:var(--pk-d); border:1.5px dashed var(--pk-m); cursor:pointer; }
 .quick-tag:hover { background:var(--pk-l); }
 .modal-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:14px; }
-
-/* TOAST */
 .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--pk-d); color:#fff; font-size:13px; font-weight:700; padding:10px 22px; border-radius:50px; z-index:300; opacity:0; transition:opacity .25s,transform .25s; pointer-events:none; white-space:nowrap; }
 .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-
-/* LOADING */
 .loading { display:flex; align-items:center; justify-content:center; min-height:60vh; font-size:14px; color:var(--pk-d); opacity:.6; }
 </style>
 </head>
@@ -115,27 +100,25 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none;
   </nav>
 
   <div class="app">
-    <!-- CUSTOMER LINK BANNER -->
     <div class="link-banner">
       <span class="link-label">your customer link</span>
       <div class="link-url" id="customerLink"></div>
       <div class="link-actions">
         <button class="btn btn-pink btn-sm" onclick="copyLink()">copy link</button>
-        <a class="btn btn-ghost btn-sm" id="previewLink" href="#" target="_blank">preview →</a>
+        <a class="btn btn-ghost btn-sm" id="previewLink" href="#" target="_blank">preview &#x2192;</a>
       </div>
     </div>
 
-    <!-- FABRICS -->
     <div class="card">
       <div class="card-title">
-        <span>your fabrics</span>
-        <span style="font-size:10px;font-weight:600;opacity:.5;text-transform:none;letter-spacing:0">click swatch to toggle pool · click name to rename · tags button to tag</span>
+        <span>your colours &amp; patterns</span>
+        <span style="font-size:10px;font-weight:600;opacity:.5;text-transform:none;letter-spacing:0">click swatch to toggle pool &middot; click name to rename &middot; tags to organise</span>
       </div>
       <div class="fabrics-grid" id="fabricsGrid">
         <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
           <div class="upload-tile" onclick="document.getElementById('fabricInput').click()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
-            add fabric
+            add
           </div>
         </div>
       </div>
@@ -158,7 +141,7 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none;
     <div style="overflow:hidden;margin-bottom:10px;">
       <div class="modal-fab-preview"><img id="tagModalImg" src="" alt=""></div>
       <h3 id="tagModalTitle">edit tags</h3>
-      <p class="modal-sub">tap to remove · add below</p>
+      <p class="modal-sub">tap to remove &middot; add below</p>
     </div>
     <div class="existing-tags" id="existingTags"></div>
     <div class="tag-input-row">
@@ -189,19 +172,14 @@ let maker = null;
 let fabrics = [];
 let editingFabricId = null;
 
-// ── INIT ──────────────────────────────────────────────────
 async function init() {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) { window.location.href = '/'; return; }
-
   const user = session.user;
   document.getElementById('navEmail').textContent = user.email;
 
-  // Load or create maker row
   let { data: makerRow } = await sb.from('makers').select('*').eq('id', user.id).maybeSingle();
-
   if (!makerRow) {
-    // New user — create maker row using metadata from signup
     const meta = user.user_metadata || {};
     const slug = localStorage.getItem('pending_slug') || meta.slug || user.id.slice(0,8);
     const business = localStorage.getItem('pending_business') || meta.business_name || 'My Business';
@@ -224,10 +202,9 @@ async function init() {
   document.getElementById('mainApp').style.display = 'block';
 }
 
-// ── FABRICS ───────────────────────────────────────────────
 async function loadFabrics() {
   const { data, error } = await sb.from('fabrics').select('*').eq('maker_id', maker.id).order('sort_order').order('created_at');
-  if (error) { showToast('error loading fabrics'); return; }
+  if (error) { showToast('error loading colours and patterns'); return; }
   fabrics = data || [];
   renderFabrics();
 }
@@ -238,12 +215,11 @@ async function handleUpload(e) {
   const prog = document.getElementById('uploadProgress');
   prog.style.display = 'block';
   let done = 0;
-
   for (const file of files) {
-    prog.textContent = `uploading ${done+1} of ${files.length}...`;
+    prog.textContent = 'uploading ' + (done + 1) + ' of ' + files.length + '...';
     const ext = file.name.split('.').pop();
-    const path = `${maker.id}/${crypto.randomUUID()}.${ext}`;
-    const { error: upErr } = await sb.storage.from('fabrics').upload(path, file, { cacheControl:'3600', upsert:false });
+    const path = maker.id + '/' + crypto.randomUUID() + '.' + ext;
+    const { error: upErr } = await sb.storage.from('fabrics').upload(path, file, { cacheControl: '3600', upsert: false });
     if (upErr) { showToast('upload failed: ' + upErr.message); continue; }
     const { data: { publicUrl } } = sb.storage.from('fabrics').getPublicUrl(path);
     const name = file.name.replace(/\.[^.]+$/, '');
@@ -254,15 +230,14 @@ async function handleUpload(e) {
     if (!dbErr) fabrics.push(row);
     done++;
   }
-
   prog.style.display = 'none';
   e.target.value = '';
   renderFabrics();
-  showToast(done + ' fabric' + (done>1?'s':'') + ' uploaded!');
+  showToast(done + (done > 1 ? ' items uploaded!' : ' item uploaded!'));
 }
 
 async function removeFabric(id) {
-  if (!confirm('Remove this fabric?')) return;
+  if (!confirm('Remove this item?')) return;
   const f = fabrics.find(f => f.id === id);
   if (!f) return;
   await sb.storage.from('fabrics').remove([f.storage_path]);
@@ -295,100 +270,104 @@ function startRenaming(id) {
   const wrap = document.getElementById('fwrap-' + id); if (!wrap) return;
   const f = fabrics.find(f => f.id === id);
   const cur = f ? f.name : '';
-  const inp = document.createElement('input'); inp.type='text'; inp.className='fabric-name-input'; inp.value=cur;
+  const inp = document.createElement('input'); inp.type = 'text'; inp.className = 'fabric-name-input'; inp.value = cur;
   wrap.innerHTML = ''; wrap.appendChild(inp); inp.focus(); inp.select();
   const commit = async () => { await renameFabric(id, inp.value || cur); renderFabrics(); };
   inp.onblur = commit;
-  inp.onkeydown = e => { if(e.key==='Enter') inp.blur(); if(e.key==='Escape'){inp.value=cur;inp.blur();} };
+  inp.onkeydown = e => { if (e.key === 'Enter') inp.blur(); if (e.key === 'Escape') { inp.value = cur; inp.blur(); } };
 }
 
 function renderFabrics() {
   const grid = document.getElementById('fabricsGrid');
   const cards = fabrics.map(f => {
     const isSel = f.in_pool;
-    return `<div class="fabric-card ${isSel?'selected':'deselected'}">
-      <div class="fabric-img-wrap" onclick="togglePool('${f.id}')">
-        <img src="${f.public_url}" alt="${esc(f.name)}" loading="lazy">
-        <div class="sel-tick"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
-        <div class="fab-overlay">
-          <button class="fab-btn fab-remove" onclick="event.stopPropagation();removeFabric('${f.id}')" title="remove">✕</button>
-        </div>
-      </div>
-      <div class="fabric-name-wrap" id="fwrap-${f.id}">
-        <span class="fabric-name" onclick="event.stopPropagation();startRenaming('${f.id}')" title="click to rename">${esc(f.name)}</span>
-      </div>
-      <div class="fabric-tags-wrap">${(f.tags||[]).map(t=>`<span class="tag-pill">${esc(t)}</span>`).join('')}</div>
-      <button class="add-tag-btn" onclick="openTagModal('${f.id}')">tags</button>
-    </div>`;
+    return '<div class="fabric-card ' + (isSel ? 'selected' : 'deselected') + '">'
+      + '<div class="fabric-img-wrap" onclick="togglePool(\'' + f.id + '\')">'
+      + '<img src="' + f.public_url + '" alt="' + esc(f.name) + '" loading="lazy">'
+      + '<div class="sel-tick"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>'
+      + '<div class="fab-overlay">'
+      + '<button class="fab-btn fab-remove" onclick="event.stopPropagation();removeFabric(\'' + f.id + '\')" title="remove">&#x2715;</button>'
+      + '</div></div>'
+      + '<div class="fabric-name-wrap" id="fwrap-' + f.id + '">'
+      + '<span class="fabric-name" onclick="event.stopPropagation();startRenaming(\'' + f.id + '\')" title="click to rename">' + esc(f.name) + '</span>'
+      + '</div>'
+      + '<div class="fabric-tags-wrap">' + (f.tags || []).map(t => '<span class="tag-pill">' + esc(t) + '</span>').join('') + '</div>'
+      + '<button class="add-tag-btn" onclick="openTagModal(\'' + f.id + '\')">tags</button>'
+      + '</div>';
   }).join('');
-  const uploadTile = `<div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
-    <div class="upload-tile" onclick="document.getElementById('fabricInput').click()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
-      add fabric
-    </div>
-  </div>`;
+
+  const uploadTile = '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;">'
+    + '<div class="upload-tile" onclick="document.getElementById(\'fabricInput\').click()">'
+    + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7"/></svg>'
+    + 'add</div></div>';
+
   grid.innerHTML = cards + uploadTile;
 
   const selBar = document.getElementById('selBar');
-  if (!fabrics.length) { selBar.style.display='none'; return; }
+  if (!fabrics.length) { selBar.style.display = 'none'; return; }
   selBar.style.display = 'flex';
-  const inPool = fabrics.filter(f=>f.in_pool).length;
-  document.getElementById('selCount').textContent = inPool===fabrics.length ? `all ${fabrics.length} fabrics in pool` : `${inPool} of ${fabrics.length} in pool`;
+  const inPool = fabrics.filter(f => f.in_pool).length;
+  document.getElementById('selCount').textContent = inPool === fabrics.length
+    ? 'all ' + fabrics.length + ' in customer pool'
+    : inPool + ' of ' + fabrics.length + ' in customer pool';
 }
 
-// ── TAG MODAL ─────────────────────────────────────────────
 function openTagModal(id) {
   editingFabricId = id;
-  const f = fabrics.find(f=>f.id===id); if(!f) return;
+  const f = fabrics.find(f => f.id === id); if (!f) return;
   document.getElementById('tagModalImg').src = f.public_url;
   document.getElementById('tagModalTitle').textContent = f.name;
   document.getElementById('tagInput').value = '';
   renderModalTags(f); renderQuickTags(f);
   document.getElementById('tagModal').classList.add('open');
-  setTimeout(()=>document.getElementById('tagInput').focus(), 80);
+  setTimeout(() => document.getElementById('tagInput').focus(), 80);
 }
 
 async function closeTagModal() {
   document.getElementById('tagModal').classList.remove('open');
-  // Save tags to DB
-  const f = fabrics.find(f=>f.id===editingFabricId);
+  const f = fabrics.find(f => f.id === editingFabricId);
   if (f) await sb.from('fabrics').update({ tags: f.tags }).eq('id', f.id);
   editingFabricId = null;
   renderFabrics();
 }
 
-function closeTagModalOutside(e) { if(e.target===document.getElementById('tagModal')) closeTagModal(); }
+function closeTagModalOutside(e) { if (e.target === document.getElementById('tagModal')) closeTagModal(); }
 
 function renderModalTags(f) {
-  document.getElementById('existingTags').innerHTML = (f.tags||[]).length
-    ? (f.tags).map(t=>`<span class="modal-tag">${esc(t)}<span class="rt" onclick="removeTag('${esc(t)}')">✕</span></span>`).join('')
+  document.getElementById('existingTags').innerHTML = (f.tags || []).length
+    ? (f.tags).map(t => '<span class="modal-tag">' + esc(t) + '<span class="rt" onclick="removeTag(\'' + esc(t) + '\')">&#x2715;</span></span>').join('')
     : '<span style="font-size:11px;color:var(--pk-m);opacity:.7">no tags yet</span>';
 }
+
 function renderQuickTags(f) {
-  const rem = SUGGESTED_TAGS.filter(t=>!(f.tags||[]).includes(t));
-  document.getElementById('quickTags').innerHTML = rem.slice(0,12).map(t=>`<span class="quick-tag" onclick="addTagDirect('${esc(t)}')">${esc(t)}</span>`).join('');
-  document.getElementById('quickTagsWrap').style.display = rem.length?'block':'none';
+  const rem = SUGGESTED_TAGS.filter(t => !(f.tags || []).includes(t));
+  document.getElementById('quickTags').innerHTML = rem.slice(0, 12).map(t => '<span class="quick-tag" onclick="addTagDirect(\'' + esc(t) + '\')">' + esc(t) + '</span>').join('');
+  document.getElementById('quickTagsWrap').style.display = rem.length ? 'block' : 'none';
 }
+
 function addTagFromInput() {
-  const input=document.getElementById('tagInput'); const val=input.value.trim().toLowerCase().replace(/[^a-z0-9 _-]/g,'');
-  if(!val) return; addTagDirect(val); input.value=''; input.focus();
+  const input = document.getElementById('tagInput');
+  const val = input.value.trim().toLowerCase().replace(/[^a-z0-9 _-]/g, '');
+  if (!val) return; addTagDirect(val); input.value = ''; input.focus();
 }
+
 function addTagDirect(tag) {
-  const f=fabrics.find(f=>f.id===editingFabricId); if(!f) return;
-  if(!f.tags) f.tags=[];
-  if(f.tags.includes(tag)) return;
+  const f = fabrics.find(f => f.id === editingFabricId); if (!f) return;
+  if (!f.tags) f.tags = [];
+  if (f.tags.includes(tag)) return;
   f.tags.push(tag); renderModalTags(f); renderQuickTags(f);
 }
-function removeTag(tag) {
-  const f=fabrics.find(f=>f.id===editingFabricId); if(!f) return;
-  f.tags=(f.tags||[]).filter(t=>t!==tag); renderModalTags(f); renderQuickTags(f);
-}
-function handleTagKey(e) { if(e.key==='Enter'){e.preventDefault();addTagFromInput();} }
 
-// ── MISC ──────────────────────────────────────────────────
+function removeTag(tag) {
+  const f = fabrics.find(f => f.id === editingFabricId); if (!f) return;
+  f.tags = (f.tags || []).filter(t => t !== tag); renderModalTags(f); renderQuickTags(f);
+}
+
+function handleTagKey(e) { if (e.key === 'Enter') { e.preventDefault(); addTagFromInput(); } }
+
 function copyLink() {
   const url = window.location.origin + '/preview/' + maker.slug;
-  navigator.clipboard.writeText(url).then(()=>showToast('link copied!')).catch(()=>showToast('copy failed'));
+  navigator.clipboard.writeText(url).then(() => showToast('link copied!')).catch(() => showToast('copy failed'));
 }
 
 async function signOut() {
@@ -396,11 +375,12 @@ async function signOut() {
   window.location.href = '/';
 }
 
-function showToast(msg, d=2200) {
-  const t=document.getElementById('toast'); t.textContent=msg;
-  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),d);
+function showToast(msg, d = 2200) {
+  const t = document.getElementById('toast'); t.textContent = msg;
+  t.classList.add('show'); setTimeout(() => t.classList.remove('show'), d);
 }
-function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
 
 init();
 </script>
