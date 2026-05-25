@@ -103,6 +103,26 @@ label { display:block; font-size:11px; font-weight:700; color:var(--pk-d); text-
 <body>
 <div id="loadingScreen" class="loading">loading your dashboard...</div>
 
+<!-- PAYMENT GATE — shown if maker hasn't paid yet -->
+<div id="gateScreen" style="display:none; position:fixed; inset:0; background:var(--bg); z-index:100; align-items:center; justify-content:center; padding:24px;">
+  <div style="background:#fff; border-radius:24px; padding:40px 36px; max-width:420px; width:100%; box-shadow:0 8px 40px var(--sh); border:2px solid var(--pk-l); text-align:center;">
+    <div style="font-size:40px; margin-bottom:16px;">🧵</div>
+    <div style="font-size:22px; font-weight:900; color:var(--pk-d); letter-spacing:-0.5px; margin-bottom:8px;">one-time access</div>
+    <p style="font-size:14px; color:var(--pk-d); opacity:.7; margin-bottom:28px; line-height:1.6;">
+      get your own fabric library, customer preview link, and font choice — forever, no subscription.
+    </p>
+    <a href="https://square.link/u/CjAajtfr" style="display:inline-block; font-family:'Poppins',sans-serif; font-size:15px; font-weight:700; background:var(--pk-d); color:#fff; padding:14px 32px; border-radius:50px; text-decoration:none; box-shadow:0 4px 16px var(--sh); transition:all .18s;" onmouseover="this.style.filter='brightness(1.06)'" onmouseout="this.style.filter=''">
+      buy access →
+    </a>
+    <p style="font-size:11px; color:var(--pk-d); opacity:.45; margin-top:16px;">
+      after payment you'll be redirected back here automatically
+    </p>
+    <div style="margin-top:24px; padding-top:20px; border-top:1.5px solid var(--pk-l);">
+      <button onclick="signOut()" style="font-family:'Poppins',sans-serif; font-size:12px; font-weight:600; background:none; border:none; color:var(--pk-d); opacity:.5; cursor:pointer;">sign out</button>
+    </div>
+  </div>
+</div>
+
 <div id="mainApp" style="display:none">
   <nav class="nav">
     <div class="nav-logo">bunting <em>previewer</em></div>
@@ -232,6 +252,24 @@ async function init() {
   }
 
   maker = makerRow;
+
+  // ── PAYMENT CHECK ──────────────────────────────────────
+  // If Square redirected back with ?paid=true, mark this maker as paid
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('paid') === 'true' && !maker.paid) {
+    await sb.from('makers').update({ paid: true }).eq('id', maker.id);
+    maker.paid = true;
+    // Clean the URL so refreshing doesn't re-trigger
+    window.history.replaceState({}, '', '/dashboard');
+  }
+
+  // If not paid, show the purchase gate instead of the dashboard
+  if (!maker.paid) {
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('gateScreen').style.display = 'flex';
+    return;
+  }
+
   const customerUrl = window.location.origin + '/preview/' + maker.slug;
   document.getElementById('customerLink').textContent = customerUrl;
   document.getElementById('previewLink').href = customerUrl;
