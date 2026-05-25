@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard — Bunting Previewer</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&family=Passion+One:wght@900&family=Cherry+Bomb+One&family=Lilita+One&family=Nunito:wght@900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 * { box-sizing:border-box; margin:0; padding:0; }
@@ -22,8 +22,6 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none;
 .btn:active { transform:scale(.97); }
 .btn-pink { background:var(--pk-d); color:#fff; }
 .btn-pink:hover { filter:brightness(1.06); }
-.btn-yellow { background:var(--yw); color:var(--pk-d); border:2px solid var(--yw-d); }
-.btn-yellow:hover { background:var(--yw-d); }
 .btn-ghost { background:transparent; color:var(--pk-d); border:2px solid var(--pk-l); }
 .btn-ghost:hover { border-color:var(--pk-d); background:var(--pk-l); }
 .btn-sm { font-size:11px; padding:5px 11px; }
@@ -35,7 +33,22 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none;
 .link-actions { display:flex; gap:8px; }
 .card { background:#fff; border-radius:20px; padding:18px; margin-bottom:16px; box-shadow:0 4px 20px var(--sh); border:2px solid var(--pk-l); }
 .card-title { font-size:11px; font-weight:700; color:var(--pk-d); text-transform:uppercase; letter-spacing:.8px; margin-bottom:14px; display:flex; align-items:center; justify-content:space-between; }
-/* Fabric grid — internal class names stay as 'fabric' for JS, only display text changes */
+label { display:block; font-size:11px; font-weight:700; color:var(--pk-d); text-transform:uppercase; letter-spacing:.7px; margin-bottom:8px; }
+
+/* FONT PICKER */
+.font-picker { display:flex; gap:10px; flex-wrap:wrap; }
+.font-option { display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; padding:12px 16px; border-radius:14px; border:2.5px solid var(--pk-l); background:var(--bg); transition:all .18s; min-width:90px; }
+.font-option:hover { border-color:var(--pk-m); }
+.font-option.active { border-color:var(--pk-d); background:var(--pk-l); }
+.font-preview { font-size:34px; line-height:1.1; color:var(--pk-d); }
+.font-preview.passion  { font-family:'Passion One', sans-serif; font-weight:900; }
+.font-preview.cherry   { font-family:'Cherry Bomb One', cursive; }
+.font-preview.lilita   { font-family:'Lilita One', sans-serif; }
+.font-preview.nunito   { font-family:'Nunito', sans-serif; font-weight:900; }
+.font-label { font-size:10px; font-weight:700; color:var(--pk-d); opacity:.6; text-transform:uppercase; letter-spacing:.5px; text-align:center; }
+.font-saving { font-size:11px; color:var(--pk-d); opacity:.5; margin-top:8px; display:none; }
+
+/* FABRICS */
 .fabrics-grid { display:flex; flex-wrap:wrap; gap:10px; align-items:flex-start; }
 .fabric-card { width:88px; display:flex; flex-direction:column; align-items:center; gap:4px; }
 .fabric-img-wrap { width:74px; height:74px; border-radius:12px; border:2.5px solid var(--pk-l); overflow:hidden; position:relative; cursor:pointer; transition:border-color .2s,transform .15s,opacity .2s; }
@@ -100,6 +113,7 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none;
   </nav>
 
   <div class="app">
+    <!-- CUSTOMER LINK BANNER -->
     <div class="link-banner">
       <span class="link-label">your customer link</span>
       <div class="link-url" id="customerLink"></div>
@@ -109,6 +123,31 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none;
       </div>
     </div>
 
+    <!-- FONT PICKER -->
+    <div class="card">
+      <div class="card-title"><span>letter font</span></div>
+      <div class="font-picker">
+        <div class="font-option" id="font-passion" onclick="setFont('passion')">
+          <span class="font-preview passion">Aa</span>
+          <span class="font-label">Passion One</span>
+        </div>
+        <div class="font-option" id="font-cherry" onclick="setFont('cherry')">
+          <span class="font-preview cherry">Aa</span>
+          <span class="font-label">Cherry Bomb</span>
+        </div>
+        <div class="font-option" id="font-lilita" onclick="setFont('lilita')">
+          <span class="font-preview lilita">Aa</span>
+          <span class="font-label">Lilita One</span>
+        </div>
+        <div class="font-option" id="font-nunito" onclick="setFont('nunito')">
+          <span class="font-preview nunito">Aa</span>
+          <span class="font-label">Nunito Black</span>
+        </div>
+      </div>
+      <div class="font-saving" id="fontSaving">saving...</div>
+    </div>
+
+    <!-- COLOURS & PATTERNS -->
     <div class="card">
       <div class="card-title">
         <span>your colours &amp; patterns</span>
@@ -197,11 +236,28 @@ async function init() {
   document.getElementById('customerLink').textContent = customerUrl;
   document.getElementById('previewLink').href = customerUrl;
 
+  // Set active font from saved preference
+  const savedFont = maker.font || 'passion';
+  document.getElementById('font-' + savedFont).classList.add('active');
+
   await loadFabrics();
   document.getElementById('loadingScreen').style.display = 'none';
   document.getElementById('mainApp').style.display = 'block';
 }
 
+// ── FONT ──────────────────────────────────────────────────
+async function setFont(name) {
+  document.querySelectorAll('.font-option').forEach(el => el.classList.remove('active'));
+  document.getElementById('font-' + name).classList.add('active');
+  const saving = document.getElementById('fontSaving');
+  saving.style.display = 'block';
+  await sb.from('makers').update({ font: name }).eq('id', maker.id);
+  maker.font = name;
+  saving.style.display = 'none';
+  showToast('font saved!');
+}
+
+// ── FABRICS ───────────────────────────────────────────────
 async function loadFabrics() {
   const { data, error } = await sb.from('fabrics').select('*').eq('maker_id', maker.id).order('sort_order').order('created_at');
   if (error) { showToast('error loading colours and patterns'); return; }
@@ -238,8 +294,7 @@ async function handleUpload(e) {
 
 async function removeFabric(id) {
   if (!confirm('Remove this item?')) return;
-  const f = fabrics.find(f => f.id === id);
-  if (!f) return;
+  const f = fabrics.find(f => f.id === id); if (!f) return;
   await sb.storage.from('fabrics').remove([f.storage_path]);
   await sb.from('fabrics').delete().eq('id', id);
   fabrics = fabrics.filter(f => f.id !== id);
@@ -295,14 +350,11 @@ function renderFabrics() {
       + '<button class="add-tag-btn" onclick="openTagModal(\'' + f.id + '\')">tags</button>'
       + '</div>';
   }).join('');
-
   const uploadTile = '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;">'
     + '<div class="upload-tile" onclick="document.getElementById(\'fabricInput\').click()">'
     + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7"/></svg>'
     + 'add</div></div>';
-
   grid.innerHTML = cards + uploadTile;
-
   const selBar = document.getElementById('selBar');
   if (!fabrics.length) { selBar.style.display = 'none'; return; }
   selBar.style.display = 'flex';
@@ -312,6 +364,7 @@ function renderFabrics() {
     : inPool + ' of ' + fabrics.length + ' in customer pool';
 }
 
+// ── TAG MODAL ─────────────────────────────────────────────
 function openTagModal(id) {
   editingFabricId = id;
   const f = fabrics.find(f => f.id === id); if (!f) return;
@@ -332,54 +385,39 @@ async function closeTagModal() {
 }
 
 function closeTagModalOutside(e) { if (e.target === document.getElementById('tagModal')) closeTagModal(); }
-
 function renderModalTags(f) {
   document.getElementById('existingTags').innerHTML = (f.tags || []).length
     ? (f.tags).map(t => '<span class="modal-tag">' + esc(t) + '<span class="rt" onclick="removeTag(\'' + esc(t) + '\')">&#x2715;</span></span>').join('')
     : '<span style="font-size:11px;color:var(--pk-m);opacity:.7">no tags yet</span>';
 }
-
 function renderQuickTags(f) {
   const rem = SUGGESTED_TAGS.filter(t => !(f.tags || []).includes(t));
   document.getElementById('quickTags').innerHTML = rem.slice(0, 12).map(t => '<span class="quick-tag" onclick="addTagDirect(\'' + esc(t) + '\')">' + esc(t) + '</span>').join('');
   document.getElementById('quickTagsWrap').style.display = rem.length ? 'block' : 'none';
 }
-
 function addTagFromInput() {
   const input = document.getElementById('tagInput');
   const val = input.value.trim().toLowerCase().replace(/[^a-z0-9 _-]/g, '');
   if (!val) return; addTagDirect(val); input.value = ''; input.focus();
 }
-
 function addTagDirect(tag) {
   const f = fabrics.find(f => f.id === editingFabricId); if (!f) return;
   if (!f.tags) f.tags = [];
   if (f.tags.includes(tag)) return;
   f.tags.push(tag); renderModalTags(f); renderQuickTags(f);
 }
-
 function removeTag(tag) {
   const f = fabrics.find(f => f.id === editingFabricId); if (!f) return;
   f.tags = (f.tags || []).filter(t => t !== tag); renderModalTags(f); renderQuickTags(f);
 }
-
 function handleTagKey(e) { if (e.key === 'Enter') { e.preventDefault(); addTagFromInput(); } }
 
 function copyLink() {
   const url = window.location.origin + '/preview/' + maker.slug;
   navigator.clipboard.writeText(url).then(() => showToast('link copied!')).catch(() => showToast('copy failed'));
 }
-
-async function signOut() {
-  await sb.auth.signOut();
-  window.location.href = '/';
-}
-
-function showToast(msg, d = 2200) {
-  const t = document.getElementById('toast'); t.textContent = msg;
-  t.classList.add('show'); setTimeout(() => t.classList.remove('show'), d);
-}
-
+async function signOut() { await sb.auth.signOut(); window.location.href = '/'; }
+function showToast(msg, d = 2200) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), d); }
 function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
 
 init();
