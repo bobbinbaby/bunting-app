@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bunting Previewer</title>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600&family=Alfa+Slab+One&family=Nunito:wght@900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Passion+One:wght@900&family=Cherry+Bomb+One&family=Lilita+One&family=Nunito:wght@900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 * { box-sizing:border-box; margin:0; padding:0; }
@@ -33,17 +33,6 @@ input[type=text] { font-family:'Poppins',sans-serif; border:2.5px solid var(--pk
 input[type=text]:focus { border-color:var(--pk-d); }
 .letter-input { font-size:17px; font-weight:700; letter-spacing:4px; width:100%; }
 .letter-input::placeholder { letter-spacing:2px; opacity:.35; font-weight:400; }
-
-/* FONT PICKER */
-.font-picker { display:flex; gap:8px; flex-wrap:wrap; }
-.font-option { display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; padding:10px 14px; border-radius:14px; border:2.5px solid var(--pk-l); background:var(--bg); transition:all .18s; min-width:80px; }
-.font-option:hover { border-color:var(--pk-m); }
-.font-option.active { border-color:var(--pk-d); background:var(--pk-l); }
-.font-preview { font-size:32px; line-height:1; color:var(--pk-d); }
-.font-preview.fredoka  { font-family:'Fredoka', sans-serif; font-weight:600; }
-.font-preview.alfa     { font-family:'Alfa Slab One', serif; }
-.font-preview.nunito   { font-family:'Nunito', sans-serif; font-weight:900; }
-.font-label { font-size:10px; font-weight:700; color:var(--pk-d); opacity:.6; text-transform:uppercase; letter-spacing:.5px; }
 
 /* FABRIC PICKER */
 .fabrics-scroll { display:flex; flex-wrap:wrap; gap:8px; }
@@ -109,7 +98,7 @@ input[type=text]:focus { border-color:var(--pk-d); }
 
     <!-- COLOURS/PATTERNS PICKER -->
     <div class="card">
-      <div class="section-title">choose your colours/patterns</div>
+      <div class="section-title">choose your colours &amp; patterns</div>
       <div class="fabrics-scroll" id="fabricsGrid"></div>
       <div class="filter-bar" id="filterBar" style="display:none">
         <span class="filter-label">filter</span>
@@ -120,23 +109,6 @@ input[type=text]:focus { border-color:var(--pk-d); }
 
     <!-- CONTROLS -->
     <div class="card">
-      <div style="margin-bottom:16px;">
-        <label>font style</label>
-        <div class="font-picker">
-          <div class="font-option active" id="font-fredoka" onclick="setFont('fredoka')">
-            <span class="font-preview fredoka">Aa</span>
-            <span class="font-label">bubbly</span>
-          </div>
-          <div class="font-option" id="font-alfa" onclick="setFont('alfa')">
-            <span class="font-preview alfa">Aa</span>
-            <span class="font-label">bold slab</span>
-          </div>
-          <div class="font-option" id="font-nunito" onclick="setFont('nunito')">
-            <span class="font-preview nunito">Aa</span>
-            <span class="font-label">rounded</span>
-          </div>
-        </div>
-      </div>
       <div style="margin-bottom:14px;">
         <label>your letters</label>
         <input type="text" class="letter-input" id="letterInput" placeholder="e.g. MAYA" maxlength="30" oninput="onLetterInput()">
@@ -163,7 +135,7 @@ input[type=text]:focus { border-color:var(--pk-d); }
       <div class="bunting-wrap" id="buntingWrap">
         <div class="empty-state">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-          <div>choose colours/patterns above &amp; type your letters<br>to preview your bunting!</div>
+          <div>choose colours &amp; patterns above and type your letters<br>to preview your bunting!</div>
         </div>
       </div>
     </div>
@@ -177,20 +149,21 @@ const SUPABASE_URL = 'https://xrdoigayaxwbltsprwmq.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhyZG9pZ2F5YXh3Ymx0c3Byd21xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NTI2NTEsImV4cCI6MjA5NTIyODY1MX0.QF37ru2AGJCVsVb_tZ9MRRjsKrzD7QEI-ZFX6Y3m4fo';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// Font definitions — scale factors tuned per font
+const FONTS = {
+  passion: { family:"'Passion One', sans-serif",   weight:'900', scaleUpper:1.62 },
+  cherry:  { family:"'Cherry Bomb One', cursive",   weight:'400', scaleUpper:1.38 },
+  lilita:  { family:"'Lilita One', sans-serif",     weight:'400', scaleUpper:1.52 },
+  nunito:  { family:"'Nunito', sans-serif",          weight:'900', scaleUpper:1.58 },
+};
+
 let allFabrics = [];
 let selectedIds = new Set();
 let activeFilters = new Set();
 let letterFabricMap = {};
 let lockedKeys = new Set();
 let fontsReady = false;
-
-// Font config — each has its own scale factors tuned to how that font fills the canvas
-const FONTS = {
-  fredoka: { family:"'Fredoka', sans-serif", weight:'600',     scaleUpper:1.62, label:'bubbly'   },
-  alfa:    { family:"'Alfa Slab One', serif", weight:'400',    scaleUpper:1.45, label:'bold slab' },
-  nunito:  { family:"'Nunito', sans-serif",   weight:'900',    scaleUpper:1.58, label:'rounded'  },
-};
-let currentFont = 'fredoka';
+let currentFont = 'passion'; // overridden by maker's saved preference
 
 let FLAG_W=100, FLAG_H=100, CANVAS_W=100, CANVAS_H=100, SPACE_W=36, STR_H=18, FONT_SIZE=120;
 
@@ -198,16 +171,28 @@ let FLAG_W=100, FLAG_H=100, CANVAS_W=100, CANVAS_H=100, SPACE_W=36, STR_H=18, FO
 async function init() {
   const slug = window.location.pathname.split('/').filter(Boolean).pop();
   if (!slug) { showError('no maker link provided'); return; }
+
   const { data: maker, error } = await sb.from('makers').select('*').eq('slug', slug).maybeSingle();
-  if (error || !maker) { showError('maker "' + slug + '" not found'); return; }
+  if (error || !maker) { showError('"' + slug + '" not found'); return; }
+
   document.title = (maker.business_name || maker.slug) + ' — Bunting Previewer';
   document.getElementById('businessName').textContent = maker.business_name || maker.slug;
-  const { data: fabrics } = await sb.from('fabrics').select('*').eq('maker_id', maker.id).eq('in_pool', true).order('sort_order').order('created_at');
+
+  // Use maker's chosen font
+  currentFont = maker.font || 'passion';
+
+  const { data: fabrics } = await sb.from('fabrics').select('*')
+    .eq('maker_id', maker.id).eq('in_pool', true)
+    .order('sort_order').order('created_at');
   allFabrics = fabrics || [];
-  if (!allFabrics.length) { showError('this maker hasn\'t added any colours/patterns yet — check back soon!'); return; }
+
+  if (!allFabrics.length) { showError('no colours or patterns added yet — check back soon!'); return; }
+
   allFabrics.forEach(f => selectedIds.add(f.id));
+
   document.getElementById('loadingScreen').style.display = 'none';
   document.getElementById('mainApp').style.display = 'block';
+
   renderFabricPicker();
   renderFilterBar();
   await document.fonts.ready;
@@ -231,7 +216,6 @@ function calcFlagSize() {
   STR_H = Math.round(FLAG_W * 0.18);
   const f = FONTS[currentFont];
   FONT_SIZE = Math.round(FLAG_W * f.scaleUpper);
-  // Measure actual bounding box
   const probe = document.createElement('canvas');
   probe.width = FONT_SIZE * 3; probe.height = FONT_SIZE * 3;
   const pctx = probe.getContext('2d');
@@ -243,31 +227,26 @@ function calcFlagSize() {
   CANVAS_H = Math.ceil(ascent + descent + pad * 2);
   FLAG_H = CANVAS_H;
   let maxW = 0;
-  'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(ch => { const w = pctx.measureText(ch).width; if (w > maxW) maxW = w; });
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(ch => {
+    const w = pctx.measureText(ch).width; if (w > maxW) maxW = w;
+  });
   CANVAS_W = Math.ceil(Math.max(FLAG_W, maxW) + Math.round(FONT_SIZE * 0.06) * 2);
 }
 window.addEventListener('resize', () => { calcFlagSize(); renderBunting(); });
 
-// ── FONT PICKER ───────────────────────────────────────────
-function setFont(name) {
-  currentFont = name;
-  document.querySelectorAll('.font-option').forEach(el => el.classList.remove('active'));
-  document.getElementById('font-' + name).classList.add('active');
-  calcFlagSize();
-  renderBunting();
-}
-
 // ── FABRIC PICKER ─────────────────────────────────────────
 function toggleFabric(id) {
   if (selectedIds.has(id)) {
-    if (selectedIds.size === 1) { showToast('select at least one colour/pattern'); return; }
+    if (selectedIds.size === 1) { showToast('select at least one colour or pattern'); return; }
     selectedIds.delete(id);
   } else { selectedIds.add(id); }
   renderFabricPicker();
   const pool = getPool();
   getTokens().forEach(t => {
     if (t.type !== 'letter' || lockedKeys.has(t.key)) return;
-    if (!selectedIds.has(letterFabricMap[t.key])) letterFabricMap[t.key] = pool[Math.floor(Math.random() * pool.length)]?.id;
+    if (!selectedIds.has(letterFabricMap[t.key])) {
+      letterFabricMap[t.key] = pool[Math.floor(Math.random() * pool.length)]?.id;
+    }
   });
   renderBunting();
 }
@@ -293,8 +272,7 @@ function renderFilterBar() {
   let html = '<span class="fchip all-chip' + (activeFilters.size === 0 ? ' sel' : '') + '" onclick="clearFilters()">all</span>';
   tags.forEach(t => { html += '<span class="fchip' + (activeFilters.has(t) ? ' sel' : '') + '" onclick="toggleFilter(\'' + esc(t) + '\')">' + esc(t) + '</span>'; });
   document.getElementById('filterChips').innerHTML = html;
-  const pool = getPool();
-  document.getElementById('poolCount').textContent = activeFilters.size > 0 ? pool.length + ' of ' + allFabrics.length : '';
+  document.getElementById('poolCount').textContent = activeFilters.size > 0 ? getPool().length + ' of ' + allFabrics.length : '';
 }
 function toggleFilter(tag) { activeFilters.has(tag) ? activeFilters.delete(tag) : activeFilters.add(tag); renderFilterBar(); renderFabricPicker(); if (getTokens().length > 0) renderBunting(); }
 function clearFilters() { activeFilters.clear(); renderFilterBar(); renderFabricPicker(); if (getTokens().length > 0) renderBunting(); }
@@ -306,7 +284,9 @@ function getPool() {
 
 // ── LETTERS ───────────────────────────────────────────────
 function getTokens() {
-  return document.getElementById('letterInput').value.toUpperCase().split('').map((ch, i) => ({ type: ch === ' ' ? 'space' : 'letter', char: ch, key: i + ':' + ch }));
+  return document.getElementById('letterInput').value.toUpperCase().split('').map((ch, i) => ({
+    type: ch === ' ' ? 'space' : 'letter', char: ch, key: i + ':' + ch
+  }));
 }
 function onLetterInput() {
   const tokens = getTokens(); const vk = new Set(tokens.map(t => t.key));
@@ -326,17 +306,23 @@ function toggleLock(key) { lockedKeys.has(key) ? lockedKeys.delete(key) : locked
 function renderBunting() {
   if (!fontsReady) return;
   const tokens = getTokens(), pool = getPool();
-  const wrap = document.getElementById('buntingWrap'), strLine = document.getElementById('buntingStringLine'), acts = document.getElementById('previewActions');
+  const wrap = document.getElementById('buntingWrap');
+  const strLine = document.getElementById('buntingStringLine');
+  const acts = document.getElementById('previewActions');
+
   if (!tokens.length) {
-    wrap.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg><div>choose colours/patterns above &amp; type your letters<br>to preview your bunting!</div></div>';
+    wrap.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg><div>choose colours &amp; patterns above and type your letters<br>to preview your bunting!</div></div>';
     strLine.style.display = 'none'; acts.style.display = 'none'; return;
   }
   if (!pool.length) {
-    wrap.innerHTML = '<div class="warn">select at least one colour/pattern above!</div>';
+    wrap.innerHTML = '<div class="warn">select at least one colour or pattern above!</div>';
     strLine.style.display = 'none'; acts.style.display = 'none'; return;
   }
-  strLine.style.top = (18 + 6 + 20 + STR_H / 2) + 'px'; strLine.style.display = 'block'; acts.style.display = 'flex';
+
+  strLine.style.top = (18 + 6 + 20 + STR_H / 2) + 'px';
+  strLine.style.display = 'block'; acts.style.display = 'flex';
   wrap.innerHTML = '';
+
   tokens.forEach(token => {
     if (token.type === 'space') {
       const sp = document.createElement('div'); sp.className = 'flag-space'; sp.style.width = SPACE_W + 'px';
@@ -350,7 +336,7 @@ function renderBunting() {
     const fabric = allFabrics.find(f => f.id === letterFabricMap[token.key]) || pool[0] || null;
     const isLocked = lockedKeys.has(token.key);
     const item = document.createElement('div'); item.className = 'flag-item' + (isLocked ? ' locked' : '');
-    item.title = isLocked ? 'click to unlock' : 'click to cycle · shift+click to lock';
+    item.title = isLocked ? 'click to unlock' : 'click to cycle \u00b7 shift+click to lock';
     item.onclick = e => { if (e.shiftKey) { toggleLock(token.key); } else if (!isLocked) { cycleFabric(token.key); } else { toggleLock(token.key); } };
     const str = document.createElement('div'); str.className = 'flag-string'; str.style.height = STR_H + 'px';
     const flag = document.createElement('div'); flag.className = 'letter-flag'; flag.style.width = FLAG_W + 'px'; flag.style.height = FLAG_H + 'px'; flag.style.overflow = 'visible';
@@ -366,7 +352,10 @@ function cycleFabric(key) {
   const tokens = getTokens().filter(t => t.type === 'letter');
   const ti = tokens.findIndex(t => t.key === key);
   const items = document.querySelectorAll('.flag-item');
-  if (items[ti]) { const flag = items[ti].querySelector('.letter-flag'); if (flag) { flag.innerHTML = ''; const f = allFabrics.find(f => f.id === letterFabricMap[key]); drawLetterFlag(flag, tokens[ti].char, f ? f.public_url : null); } }
+  if (items[ti]) {
+    const flag = items[ti].querySelector('.letter-flag');
+    if (flag) { flag.innerHTML = ''; const f = allFabrics.find(f => f.id === letterFabricMap[key]); drawLetterFlag(flag, tokens[ti].char, f ? f.public_url : null); }
+  }
 }
 
 // ── CANVAS ────────────────────────────────────────────────
@@ -380,6 +369,7 @@ function drawLetterFlag(container, letter, fabricUrl) {
   const ctx = canvas.getContext('2d'); ctx.scale(S, S);
   const f = FONTS[currentFont];
   const font = f.weight + ' ' + FONT_SIZE + 'px ' + f.family;
+
   function render(img) {
     ctx.clearRect(0, 0, W, H);
     ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -395,6 +385,7 @@ function drawLetterFlag(container, letter, fabricUrl) {
     ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.lineWidth = 1;
     ctx.strokeText(letter, W / 2, H / 2);
   }
+
   if (fabricUrl) { const img = new Image(); img.crossOrigin = 'anonymous'; img.onload = () => render(img); img.onerror = () => render(null); img.src = fabricUrl; }
   else { render(null); }
 }
@@ -425,11 +416,13 @@ function downloadBunting() {
     btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 19h14M19 13l-7 7-7-7"/></svg> download';
     btn.disabled = false;
   }
-  let attempts = 0; function tryDownload() { if (allReady() || attempts > 30) { doDownload(); return; } attempts++; setTimeout(tryDownload, 100); } tryDownload();
+  let attempts = 0;
+  function tryDownload() { if (allReady() || attempts > 30) { doDownload(); return; } attempts++; setTimeout(tryDownload, 100); }
+  tryDownload();
 }
 
-function showToast(msg, d=2200) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), d); }
-function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function showToast(msg, d = 2200) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), d); }
+function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
 
 init();
 </script>
