@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/preview/:slug", "destination": "/preview.html" },
+    { "source": "/dashboard", "destination": "/dashboard.html" }
+  ]
+}

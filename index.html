@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bunting Previewer — for makers</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+:root { --pk-l:#f9c8e0; --pk-m:#f4a8cc; --pk-d:#e87ab5; --yw:#fef08a; --yw-d:#f5d060; --bg:#fdf0f6; --sh:rgba(232,122,181,0.22); }
+body { font-family:'Poppins',sans-serif; background:var(--bg); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+body::before { content:''; position:fixed; inset:0; pointer-events:none;
+  background-image: repeating-linear-gradient(0deg,transparent,transparent 38px,rgba(244,168,204,0.13) 38px,rgba(244,168,204,0.13) 76px),
+  repeating-linear-gradient(90deg,transparent,transparent 38px,rgba(244,168,204,0.13) 38px,rgba(244,168,204,0.13) 76px); }
+.box { background:#fff; border-radius:24px; padding:40px 36px; max-width:440px; width:100%; box-shadow:0 8px 40px var(--sh); border:2px solid var(--pk-l); position:relative; z-index:1; }
+.logo { font-size:28px; font-weight:900; color:var(--pk-d); letter-spacing:-1px; margin-bottom:4px; }
+.logo em { font-style:normal; color:var(--yw-d); -webkit-text-stroke:1.5px var(--pk-d); }
+.tagline { font-size:13px; color:var(--pk-d); opacity:.6; margin-bottom:32px; }
+.tabs { display:flex; background:var(--pk-l); border-radius:50px; padding:3px; gap:2px; margin-bottom:28px; }
+.tab { flex:1; font-family:'Poppins',sans-serif; font-size:13px; font-weight:700; padding:8px; border:none; border-radius:50px; cursor:pointer; background:transparent; color:var(--pk-d); transition:all .2s; }
+.tab.active { background:var(--pk-d); color:#fff; }
+.field { margin-bottom:16px; }
+label { display:block; font-size:11px; font-weight:700; color:var(--pk-d); text-transform:uppercase; letter-spacing:.7px; margin-bottom:5px; }
+input { font-family:'Poppins',sans-serif; font-size:14px; width:100%; border:2.5px solid var(--pk-l); border-radius:12px; padding:10px 14px; outline:none; color:var(--pk-d); background:var(--bg); transition:border-color .2s; }
+input:focus { border-color:var(--pk-d); }
+.slug-wrap { display:flex; align-items:center; border:2.5px solid var(--pk-l); border-radius:12px; background:var(--bg); overflow:hidden; transition:border-color .2s; }
+.slug-wrap:focus-within { border-color:var(--pk-d); }
+.slug-prefix { font-size:12px; font-weight:600; color:var(--pk-d); opacity:.45; padding:10px 0 10px 14px; white-space:nowrap; }
+.slug-wrap input { border:none; background:transparent; padding:10px 14px 10px 4px; flex:1; }
+.slug-wrap input:focus { border:none; }
+.hint { font-size:11px; color:var(--pk-d); opacity:.5; margin-top:5px; }
+.btn { font-family:'Poppins',sans-serif; font-size:14px; font-weight:700; width:100%; padding:12px; border:none; border-radius:50px; cursor:pointer; background:var(--pk-d); color:#fff; margin-top:8px; box-shadow:0 4px 16px var(--sh); transition:all .18s; }
+.btn:hover { filter:brightness(1.06); transform:translateY(-1px); }
+.btn:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+.msg { font-size:13px; margin-top:16px; padding:12px 16px; border-radius:12px; display:none; }
+.msg.success { background:#f0fdf4; color:#166534; border:1.5px solid #bbf7d0; display:block; }
+.msg.error { background:#fef2f2; color:#991b1b; border:1.5px solid #fecaca; display:block; }
+.divider { text-align:center; font-size:12px; color:var(--pk-d); opacity:.4; margin:20px 0; }
+.customer-link { text-align:center; margin-top:24px; padding-top:24px; border-top:1.5px solid var(--pk-l); }
+.customer-link p { font-size:12px; color:var(--pk-d); opacity:.6; }
+.customer-link a { color:var(--pk-d); font-weight:700; text-decoration:none; }
+.customer-link a:hover { text-decoration:underline; }
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="logo">bunting <em>previewer</em></div>
+  <p class="tagline">let your customers design their own bunting ✨</p>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('signup')">sign up</button>
+    <button class="tab" onclick="showTab('login')">log in</button>
+  </div>
+
+  <!-- SIGN UP -->
+  <div id="signupForm">
+    <div class="field">
+      <label>email</label>
+      <input type="email" id="suEmail" placeholder="you@yourbusiness.com">
+    </div>
+    <div class="field">
+      <label>business name</label>
+      <input type="text" id="suBusiness" placeholder="Bobbin Baby">
+    </div>
+    <div class="field">
+      <label>your customer link</label>
+      <div class="slug-wrap">
+        <span class="slug-prefix" id="slugPrefix">preview/</span>
+        <input type="text" id="suSlug" placeholder="bobbinbaby" maxlength="40" oninput="sanitiseSlug(this)">
+      </div>
+      <p class="hint">letters, numbers and hyphens only · 3–40 characters</p>
+    </div>
+    <button class="btn" id="suBtn" onclick="signUp()">create my account →</button>
+    <div class="msg" id="suMsg"></div>
+  </div>
+
+  <!-- LOG IN -->
+  <div id="loginForm" style="display:none">
+    <div class="field">
+      <label>email</label>
+      <input type="email" id="liEmail" placeholder="you@yourbusiness.com">
+    </div>
+    <button class="btn" id="liBtn" onclick="logIn()">send magic link →</button>
+    <div class="msg" id="liMsg"></div>
+  </div>
+
+  <div class="customer-link">
+    <p>are you a customer looking to design bunting? <a href="#" onclick="promptCustomer()">enter your maker's link</a></p>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://xrdoigayaxwbltsprwmq.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhyZG9pZ2F5YXh3Ymx0c3Byd21xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NTI2NTEsImV4cCI6MjA5NTIyODY1MX0.QF37ru2AGJCVsVb_tZ9MRRjsKrzD7QEI-ZFX6Y3m4fo';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// If already logged in, go to dashboard
+sb.auth.getSession().then(({data:{session}}) => { if(session) window.location.href = '/dashboard'; });
+
+// Update slug prefix with current origin
+document.getElementById('slugPrefix').textContent = window.location.origin + '/preview/';
+
+function showTab(t) {
+  document.getElementById('signupForm').style.display = t==='signup'?'block':'none';
+  document.getElementById('loginForm').style.display  = t==='login' ?'block':'none';
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',(t==='signup'&&i===0)||(t==='login'&&i===1)));
+}
+
+function sanitiseSlug(el) {
+  el.value = el.value.toLowerCase().replace(/[^a-z0-9-]/g,'');
+}
+
+async function signUp() {
+  const email    = document.getElementById('suEmail').value.trim();
+  const business = document.getElementById('suBusiness').value.trim();
+  const slug     = document.getElementById('suSlug').value.trim();
+  const btn      = document.getElementById('suBtn');
+  const msg      = document.getElementById('suMsg');
+  msg.className  = 'msg';
+
+  if (!email || !business || !slug) return showMsg(msg,'error','please fill in all fields');
+  if (slug.length < 3) return showMsg(msg,'error','slug must be at least 3 characters');
+
+  btn.disabled = true; btn.textContent = 'checking...';
+
+  // Check slug is available
+  const {data:existing} = await sb.from('makers').select('slug').eq('slug',slug).maybeSingle();
+  if (existing) { btn.disabled=false; btn.textContent='create my account →'; return showMsg(msg,'error','that link is already taken — try another'); }
+
+  btn.textContent = 'sending magic link...';
+
+  const redirectTo = window.location.origin + '/dashboard';
+  const {error} = await sb.auth.signUp({
+    email,
+    password: crypto.randomUUID(), // placeholder — we use magic links
+    options: {
+      emailRedirectTo: redirectTo,
+      data: { business_name: business, slug }
+    }
+  });
+
+  if (error) { btn.disabled=false; btn.textContent='create my account →'; return showMsg(msg,'error',error.message); }
+
+  // Insert maker row (will also be created by trigger if set up, but do it here as fallback)
+  // We store pending slug in localStorage for after email confirm
+  localStorage.setItem('pending_slug', slug);
+  localStorage.setItem('pending_business', business);
+
+  showMsg(msg,'success','✓ check your email for a magic link to confirm your account!');
+  btn.disabled=false; btn.textContent='create my account →';
+}
+
+async function logIn() {
+  const email = document.getElementById('liEmail').value.trim();
+  const btn   = document.getElementById('liBtn');
+  const msg   = document.getElementById('liMsg');
+  if (!email) return showMsg(msg,'error','please enter your email');
+  btn.disabled=true; btn.textContent='sending...';
+  const {error} = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: window.location.origin+'/dashboard' } });
+  if (error) { btn.disabled=false; btn.textContent='send magic link →'; return showMsg(msg,'error',error.message); }
+  showMsg(msg,'success','✓ magic link sent — check your email!');
+  btn.disabled=false; btn.textContent='send magic link →';
+}
+
+function promptCustomer() {
+  const slug = prompt('Enter the maker link (e.g. bobbinbaby):');
+  if (slug) window.location.href = '/preview/' + slug.trim().toLowerCase();
+}
+
+function showMsg(el, type, text) { el.className='msg '+type; el.textContent=text; }
+</script>
+</body>
+</html>
