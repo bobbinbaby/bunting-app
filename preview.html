@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bunting Previewer</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&family=Passion+One:wght@900&family=Cherry+Bomb+One&family=Lilita+One&family=Nunito:wght@900&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>function setLoadErr(){var e=document.getElementById("loadingMsg");if(e)e.textContent="failed to load - check your connection";}</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js" onerror="setLoadErr()"></script>
 <style>
 * { box-sizing:border-box; margin:0; padding:0; }
 :root {
@@ -138,12 +139,12 @@ input[type=text]:focus { border-color:var(--pk-d); }
 
 <div id="loadingScreen" class="full-screen">
   <div style="font-size:28px;">🧵</div>
-  <div>loading...</div>
+  <div id="loadingMsg">loading...</div>
 </div>
 <div id="errorScreen" class="full-screen" style="display:none">
   <div style="font-size:36px;">🤷</div>
-  <div id="errorMsg">maker not found</div>
-  <a href="/" style="color:var(--pk-d);font-weight:700;">go home</a>
+  <div id="errorMsg" style="max-width:320px;text-align:center;word-break:break-word;">maker not found</div>
+  <a href="/" style="color:var(--pk-d);font-weight:700;margin-top:8px;">go home</a>
 </div>
 
 <div id="mainApp" style="display:none">
@@ -259,11 +260,14 @@ let FLAG_W=100, FLAG_H=100, CANVAS_W=100, CANVAS_H=100, SPACE_W=36, STR_H=18, FO
 
 // ── INIT ──────────────────────────────────────────────────
 async function init() {
+  setLoading('connecting...');
   try {
     const slug = window.location.pathname.split('/').filter(Boolean).pop();
     if (!slug) { showError('no maker link provided'); return; }
+    setLoading('looking up maker...');
 
     // Look up maker — only select columns that definitely exist
+    setLoading('loading colours & patterns...');
     const { data: maker, error: makerErr } = await sb
       .from('makers')
       .select('id, email, slug, business_name, font')
@@ -301,7 +305,11 @@ async function init() {
     renderFabricPicker();
     renderFilterBar();
     renderSelectedTray();
-    await document.fonts.ready;
+    // Wait for fonts but with a timeout fallback so it never hangs
+    await Promise.race([
+      document.fonts.ready,
+      new Promise(resolve => setTimeout(resolve, 3000))
+    ]);
     fontsReady = true;
     calcFlagSize();
     renderBunting();
@@ -315,6 +323,11 @@ function showError(msg) {
   document.getElementById('loadingScreen').style.display = 'none';
   document.getElementById('errorMsg').textContent = msg;
   document.getElementById('errorScreen').style.display = 'flex';
+}
+
+function setLoading(msg) {
+  const el = document.getElementById('loadingMsg');
+  if (el) el.textContent = msg;
 }
 
 // ── STEPS INDICATOR ───────────────────────────────────────
@@ -442,22 +455,38 @@ function getPool() {
 function renderSelectedTray() {
   const tray = document.getElementById('selectedTray');
   const trayWrap = document.getElementById('selectedTrayWrap');
+  const countEl = document.getElementById('selectedCount');
   if (!tray) return;
   const selected = allFabrics.filter(f => selectedIds.has(f.id));
   if (!selected.length) {
-    document.getElementById('selectedCount').textContent = '';
-  tray.innerHTML = '<span style="font-size:11px;color:var(--pk-d);opacity:.4;font-style:italic;">none selected yet — tap a swatch above</span>';
+    if (countEl) countEl.textContent = '';
     trayWrap.style.borderColor = 'var(--pk-l)';
+    tray.innerHTML = '<span style="font-size:11px;color:var(--pk-d);opacity:.4;font-style:italic;">none selected yet \u2014 tap a swatch above</span>';
     return;
   }
   trayWrap.style.borderColor = 'var(--pk-d)';
-  document.getElementById('selectedCount').textContent = '(' + selected.length + ')';
-  tray.innerHTML = selected.map(f =>
-    '<div class="selected-chip" title="' + esc(f.name) + '" onclick="toggleFabric('' + f.id + '')">'
-    + '<div class="selected-thumb"><img src="' + f.public_url + '" alt="' + esc(f.name) + '" loading="lazy"></div>'
-    + '<button class="selected-remove" onclick="event.stopPropagation();toggleFabric('' + f.id + '')">&#x2715;</button>'
-    + '</div>'
-  ).join('');
+  if (countEl) countEl.textContent = '(' + selected.length + ')';
+  tray.innerHTML = '';
+  selected.forEach(function(f) {
+    var chip = document.createElement('div');
+    chip.className = 'selected-chip';
+    chip.title = f.name;
+    chip.onclick = function() { toggleFabric(f.id); };
+    var thumb = document.createElement('div');
+    thumb.className = 'selected-thumb';
+    var img = document.createElement('img');
+    img.src = f.public_url;
+    img.alt = f.name;
+    img.loading = 'lazy';
+    thumb.appendChild(img);
+    var removeBtn = document.createElement('button');
+    removeBtn.className = 'selected-remove';
+    removeBtn.innerHTML = '&#x2715;';
+    removeBtn.onclick = function(e) { e.stopPropagation(); toggleFabric(f.id); };
+    chip.appendChild(thumb);
+    chip.appendChild(removeBtn);
+    tray.appendChild(chip);
+  });
 }
 
 // ── LETTERS ───────────────────────────────────────────────
@@ -699,6 +728,15 @@ function downloadBunting() {
 
 function showToast(msg,d=2200){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),d);}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+
+// Catch any uncaught JS errors and show them
+window.onerror = function(msg, src, line) {
+  showError('JS error: ' + msg + ' (line ' + line + ')');
+  return true;
+};
+window.onunhandledrejection = function(e) {
+  showError('error: ' + (e.reason?.message || e.reason || 'unknown'));
+};
 
 init();
 </script>
