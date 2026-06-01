@@ -259,30 +259,56 @@ let FLAG_W=100, FLAG_H=100, CANVAS_W=100, CANVAS_H=100, SPACE_W=36, STR_H=18, FO
 
 // ── INIT ──────────────────────────────────────────────────
 async function init() {
-  const slug = window.location.pathname.split('/').filter(Boolean).pop();
-  if (!slug) { showError('no maker link provided'); return; }
-  const { data: maker, error } = await sb.from('makers').select('*').eq('slug', slug).maybeSingle();
-  if (error || !maker) { showError('"' + slug + '" not found'); return; }
-  document.title = (maker.business_name || maker.slug) + ' — Bunting Previewer';
-  // Apply maker's font to business name
-  const nameEl = document.getElementById('businessName');
-  nameEl.textContent = maker.business_name || maker.slug;
-  currentFont = maker.font || 'passion';
-  nameEl.className = 'business-name ' + currentFont;
-  const { data: fabrics } = await sb.from('fabrics').select('*')
-    .eq('maker_id', maker.id).eq('in_pool', true)
-    .order('sort_order').order('created_at');
-  allFabrics = fabrics || [];
-  if (!allFabrics.length) { showError('no colours or patterns added yet — check back soon!'); return; }
-  document.getElementById('loadingScreen').style.display = 'none';
-  document.getElementById('mainApp').style.display = 'block';
-  renderFabricPicker();
-  renderFilterBar();
-  renderSelectedTray();
-  await document.fonts.ready;
-  fontsReady = true;
-  calcFlagSize();
-  renderBunting();
+  try {
+    const slug = window.location.pathname.split('/').filter(Boolean).pop();
+    if (!slug) { showError('no maker link provided'); return; }
+
+    // Look up maker — only select columns that definitely exist
+    const { data: maker, error: makerErr } = await sb
+      .from('makers')
+      .select('id, email, slug, business_name, font')
+      .eq('slug', slug)
+      .maybeSingle();
+
+    if (makerErr) { showError('could not load maker: ' + makerErr.message); return; }
+    if (!maker) { showError('"' + slug + '" not found — check the link and try again'); return; }
+
+    document.title = (maker.business_name || maker.slug) + ' — Bunting Previewer';
+    const nameEl = document.getElementById('businessName');
+    nameEl.textContent = maker.business_name || maker.slug;
+    currentFont = maker.font || 'passion';
+    nameEl.className = 'business-name ' + currentFont;
+
+    // Load fabrics
+    const { data: fabrics, error: fabErr } = await sb
+      .from('fabrics')
+      .select('*')
+      .eq('maker_id', maker.id)
+      .eq('in_pool', true)
+      .order('sort_order')
+      .order('created_at');
+
+    if (fabErr) { showError('could not load fabrics: ' + fabErr.message); return; }
+    allFabrics = fabrics || [];
+
+    if (!allFabrics.length) {
+      showError('no colours or patterns added yet — check back soon!');
+      return;
+    }
+
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('mainApp').style.display = 'block';
+    renderFabricPicker();
+    renderFilterBar();
+    renderSelectedTray();
+    await document.fonts.ready;
+    fontsReady = true;
+    calcFlagSize();
+    renderBunting();
+
+  } catch(err) {
+    showError('something went wrong: ' + err.message);
+  }
 }
 
 function showError(msg) {
