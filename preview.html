@@ -188,7 +188,7 @@ async function init() {
 
   if (!allFabrics.length) { showError('no colours or patterns added yet — check back soon!'); return; }
 
-  allFabrics.forEach(f => selectedIds.add(f.id));
+  // Start with nothing selected — customer chooses their own fabrics
 
   document.getElementById('loadingScreen').style.display = 'none';
   document.getElementById('mainApp').style.display = 'block';
@@ -237,7 +237,6 @@ window.addEventListener('resize', () => { calcFlagSize(); renderBunting(); });
 // ── FABRIC PICKER ─────────────────────────────────────────
 function toggleFabric(id) {
   if (selectedIds.has(id)) {
-    if (selectedIds.size === 1) { showToast('select at least one colour or pattern'); return; }
     selectedIds.delete(id);
   } else { selectedIds.add(id); }
   renderFabricPicker();
@@ -292,8 +291,7 @@ function toggleFilter(tag) {
       if ((f.tags || []).some(t => activeFilters.has(t))) selectedIds.add(f.id);
     });
   } else {
-    // No filter — reselect everything
-    allFabrics.forEach(f => selectedIds.add(f.id));
+    // Filter cleared — keep current selections as-is, just show all fabrics
   }
   renderFilterBar();
   renderFabricPicker();
@@ -301,8 +299,6 @@ function toggleFilter(tag) {
 }
 function clearFilters() {
   activeFilters.clear();
-  // Restore all to selected
-  allFabrics.forEach(f => selectedIds.add(f.id));
   renderFilterBar();
   renderFabricPicker();
   if (getTokens().length > 0) renderBunting();
@@ -421,7 +417,7 @@ function drawLetterFlag(container, letter, fabricUrl) {
     ox.font = font; ox.textAlign = 'center'; ox.textBaseline = 'middle';
     ox.fillStyle = '#000'; ox.fillText(letter, W / 2, H / 2);
     ox.globalCompositeOperation = 'source-in';
-    if (img) { ox.drawImage(img, 0, 0, W, H); } else { ox.fillStyle = '#fef08a'; ox.fillRect(0, 0, W, H); }
+    if (img) { ox.drawImage(img, 0, 0, W, H); } else { ox.fillStyle = '#c0bcbe'; ox.fillRect(0, 0, W, H); }
     ctx.drawImage(off, 0, 0, W, H);
     ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.lineWidth = 1;
     ctx.strokeText(letter, W / 2, H / 2);
