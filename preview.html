@@ -78,6 +78,15 @@ input[type=text]:focus { border-color:var(--pk-d); }
 .fabric-thumb img { width:100%; height:100%; object-fit:cover; }
 .chip-name { font-size:9px; font-weight:600; color:var(--pk-d); opacity:.7; max-width:62px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
+/* SELECTED TRAY */
+.selected-tray-wrap { border:2px dashed var(--pk-l); border-radius:14px; padding:10px 12px; margin-top:12px; min-height:52px; display:flex; align-items:center; transition:border-color .2s; }
+.selected-tray { display:flex; flex-wrap:wrap; gap:7px; align-items:center; }
+.selected-chip { position:relative; cursor:pointer; }
+.selected-thumb { width:44px; height:44px; border-radius:9px; overflow:hidden; border:2.5px solid var(--pk-d); transition:transform .15s; }
+.selected-thumb:hover { transform:scale(1.06); }
+.selected-thumb img { width:100%; height:100%; object-fit:cover; }
+.selected-remove { position:absolute; top:-5px; right:-5px; width:16px; height:16px; border-radius:50%; background:var(--pk-d); color:#fff; border:none; font-size:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:700; }
+
 /* FILTER */
 .filter-bar { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:12px 0 2px; border-top:1.5px solid var(--pk-l); margin-top:12px; }
 .filter-label { font-size:11px; font-weight:700; color:var(--pk-d); opacity:.6; text-transform:uppercase; letter-spacing:.6px; white-space:nowrap; }
@@ -174,6 +183,16 @@ input[type=text]:focus { border-color:var(--pk-d); }
         </div>
       </div>
       <div class="fabrics-grid" id="fabricsGrid"></div>
+      <!-- SELECTED TRAY -->
+      <div style="margin-top:12px;">
+        <div style="font-size:10px;font-weight:700;color:var(--pk-d);text-transform:uppercase;letter-spacing:.6px;opacity:.6;margin-bottom:6px;">selected <span id="selectedCount"></span></div>
+        <div class="selected-tray-wrap" id="selectedTrayWrap">
+          <div class="selected-tray" id="selectedTray">
+            <span style="font-size:11px;color:var(--pk-d);opacity:.4;font-style:italic;">none selected yet — tap a swatch above</span>
+          </div>
+        </div>
+      </div>
+
       <div class="filter-bar" id="filterBar" style="display:none">
         <span class="filter-label">filter by tag</span>
         <div class="filter-chips-wrap" id="filterChips"></div>
@@ -259,6 +278,7 @@ async function init() {
   document.getElementById('mainApp').style.display = 'block';
   renderFabricPicker();
   renderFilterBar();
+  renderSelectedTray();
   await document.fonts.ready;
   fontsReady = true;
   calcFlagSize();
@@ -310,6 +330,7 @@ function toggleFabric(id) {
   if (selectedIds.has(id)) { selectedIds.delete(id); }
   else { selectedIds.add(id); }
   renderFabricPicker();
+  renderSelectedTray();
   updateSteps();
   const pool = getPool();
   if (pool.length > 0) {
@@ -325,19 +346,21 @@ function toggleFabric(id) {
 }
 
 function selectAll() {
-  const visible = activeFilters.size > 0
-    ? allFabrics.filter(f => [...activeFilters].every(t => (f.tags||[]).includes(t)))
-    : allFabrics;
+  const visible = getVisible();
   visible.forEach(f => selectedIds.add(f.id));
-  renderFabricPicker(); updateSteps(); renderBunting();
+  renderFabricPicker(); renderSelectedTray(); updateSteps();
 }
 
 function deselectAll() {
-  const visible = activeFilters.size > 0
+  const visible = getVisible();
+  visible.forEach(f => selectedIds.delete(f.id));
+  renderFabricPicker(); renderSelectedTray(); updateSteps(); renderBunting();
+}
+
+function getVisible() {
+  return activeFilters.size > 0
     ? allFabrics.filter(f => [...activeFilters].every(t => (f.tags||[]).includes(t)))
     : allFabrics;
-  visible.forEach(f => selectedIds.delete(f.id));
-  renderFabricPicker(); updateSteps(); renderBunting();
 }
 
 function renderFabricPicker() {
@@ -379,27 +402,36 @@ function renderFilterBar() {
 function toggleFilter(tag) {
   if (activeFilters.has(tag)) { activeFilters.delete(tag); }
   else { activeFilters.add(tag); }
-  // Auto-select fabrics matching ALL active filters, deselect others from this view
-  if (activeFilters.size > 0) {
-    selectedIds.clear();
-    allFabrics.forEach(f => {
-      if ([...activeFilters].every(t => (f.tags||[]).includes(t))) selectedIds.add(f.id);
-    });
-  }
+  // Filters only change the VIEW — never touch selectedIds
   renderFilterBar();
   renderFabricPicker();
-  updateSteps();
-  if (getTokens().length > 0) randomiseFabrics();
-  else renderBunting();
+  renderSelectedTray();
 }
 
 function getPool() {
-  let pool = allFabrics.filter(f => selectedIds.has(f.id));
-  if (activeFilters.size > 0) {
-    const filtered = pool.filter(f => [...activeFilters].every(t => (f.tags||[]).includes(t)));
-    if (filtered.length > 0) pool = filtered;
+  // Pool is just the selected fabrics — filters don't restrict the pool
+  return allFabrics.filter(f => selectedIds.has(f.id));
+}
+
+function renderSelectedTray() {
+  const tray = document.getElementById('selectedTray');
+  const trayWrap = document.getElementById('selectedTrayWrap');
+  if (!tray) return;
+  const selected = allFabrics.filter(f => selectedIds.has(f.id));
+  if (!selected.length) {
+    document.getElementById('selectedCount').textContent = '';
+  tray.innerHTML = '<span style="font-size:11px;color:var(--pk-d);opacity:.4;font-style:italic;">none selected yet — tap a swatch above</span>';
+    trayWrap.style.borderColor = 'var(--pk-l)';
+    return;
   }
-  return pool;
+  trayWrap.style.borderColor = 'var(--pk-d)';
+  document.getElementById('selectedCount').textContent = '(' + selected.length + ')';
+  tray.innerHTML = selected.map(f =>
+    '<div class="selected-chip" title="' + esc(f.name) + '" onclick="toggleFabric('' + f.id + '')">'
+    + '<div class="selected-thumb"><img src="' + f.public_url + '" alt="' + esc(f.name) + '" loading="lazy"></div>'
+    + '<button class="selected-remove" onclick="event.stopPropagation();toggleFabric('' + f.id + '')">&#x2715;</button>'
+    + '</div>'
+  ).join('');
 }
 
 // ── LETTERS ───────────────────────────────────────────────
