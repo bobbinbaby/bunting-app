@@ -4,21 +4,46 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bunting Previewer</title>
-<link href="https://fonts.googleapis.com/css2?family=Passion+One:wght@900&family=Cherry+Bomb+One&family=Lilita+One&family=Nunito:wght@900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&family=Passion+One:wght@900&family=Cherry+Bomb+One&family=Lilita+One&family=Nunito:wght@900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 * { box-sizing:border-box; margin:0; padding:0; }
-:root { --pk-l:#f9c8e0; --pk-m:#f4a8cc; --pk-d:#e87ab5; --yw:#fef08a; --yw-d:#f5d060; --bg:#fdf0f6; --sh:rgba(232,122,181,0.2); }
+:root {
+  --pk-l:#f9c8e0; --pk-m:#f4a8cc; --pk-d:#e87ab5;
+  --yw:#fef08a; --yw-d:#f5d060;
+  --bg:#fdf0f6; --sh:rgba(232,122,181,0.2);
+}
 body { font-family:'Poppins',sans-serif; background:var(--bg); min-height:100vh; overflow-x:hidden; }
 body::before { content:''; position:fixed; inset:0; pointer-events:none;
-  background-image: repeating-linear-gradient(0deg,transparent,transparent 38px,rgba(244,168,204,0.13) 38px,rgba(244,168,204,0.13) 76px),
-  repeating-linear-gradient(90deg,transparent,transparent 38px,rgba(244,168,204,0.13) 38px,rgba(244,168,204,0.13) 76px); }
+  background-image:
+    repeating-linear-gradient(0deg,transparent,transparent 38px,rgba(244,168,204,0.13) 38px,rgba(244,168,204,0.13) 76px),
+    repeating-linear-gradient(90deg,transparent,transparent 38px,rgba(244,168,204,0.13) 38px,rgba(244,168,204,0.13) 76px); }
+
 .app { position:relative; z-index:1; max-width:980px; margin:0 auto; padding:22px 16px 80px; }
-.header { text-align:center; margin-bottom:24px; }
-.business-name { font-size:22px; font-weight:900; color:var(--pk-d); letter-spacing:-0.5px; }
-.header-sub { font-size:13px; color:var(--pk-d); opacity:.6; margin-top:4px; }
+
+/* HEADER */
+.header { text-align:center; margin-bottom:20px; }
+.business-name { font-size:32px; line-height:1.1; color:var(--pk-d); margin-bottom:6px; }
+.business-name.passion { font-family:'Passion One',sans-serif; font-weight:900; }
+.business-name.cherry  { font-family:'Cherry Bomb One',cursive; }
+.business-name.lilita  { font-family:'Lilita One',sans-serif; }
+.business-name.nunito  { font-family:'Nunito',sans-serif; font-weight:900; }
+.header-sub { font-size:13px; color:var(--pk-d); opacity:.6; }
+
+/* STEPS */
+.steps { display:flex; align-items:center; justify-content:center; gap:0; margin-bottom:22px; flex-wrap:wrap; }
+.step { display:flex; align-items:center; gap:7px; font-size:12px; font-weight:700; color:var(--pk-d); opacity:.55; padding:8px 14px; }
+.step.active { opacity:1; }
+.step-num { width:22px; height:22px; border-radius:50%; background:var(--pk-l); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:var(--pk-d); flex-shrink:0; }
+.step.active .step-num { background:var(--pk-d); color:#fff; }
+.step-arrow { color:var(--pk-m); font-size:14px; opacity:.4; }
+
+/* CARD */
 .card { background:#fff; border-radius:20px; padding:18px; margin-bottom:14px; box-shadow:0 4px 20px var(--sh); border:2px solid var(--pk-l); }
-.section-title { font-size:11px; font-weight:700; color:var(--pk-d); text-transform:uppercase; letter-spacing:.8px; margin-bottom:12px; }
+.card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.section-title { font-size:11px; font-weight:700; color:var(--pk-d); text-transform:uppercase; letter-spacing:.8px; }
+
+/* BUTTONS */
 .btn { font-family:'Poppins',sans-serif; font-size:12px; font-weight:700; padding:8px 16px; border:none; border-radius:50px; cursor:pointer; transition:all .16s; display:inline-flex; align-items:center; gap:5px; white-space:nowrap; }
 .btn:active { transform:scale(.97); }
 .btn-pink { background:var(--pk-d); color:#fff; }
@@ -27,52 +52,75 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none;
 .btn-yellow:hover { background:var(--yw-d); }
 .btn-ghost { background:transparent; color:var(--pk-d); border:2px solid var(--pk-l); }
 .btn-ghost:hover { border-color:var(--pk-d); background:var(--pk-l); }
+.btn-ghost:disabled { opacity:.35; cursor:not-allowed; }
+.btn-ghost:disabled:hover { border-color:var(--pk-l); background:transparent; }
 .btn-sm { font-size:11px; padding:5px 11px; }
+.btn-link { background:none; border:none; font-family:'Poppins',sans-serif; font-size:11px; font-weight:700; color:var(--pk-d); opacity:.5; cursor:pointer; padding:0; text-decoration:underline; }
+.btn-link:hover { opacity:.8; }
+
 label { display:block; font-size:11px; font-weight:700; color:var(--pk-d); text-transform:uppercase; letter-spacing:.7px; margin-bottom:4px; }
-input[type=text] { font-family:'Poppins',sans-serif; border:2.5px solid var(--pk-l); border-radius:12px; padding:9px 13px; outline:none; color:var(--pk-d); background:var(--bg); transition:border-color .2s; }
+input[type=text] { font-family:'Poppins',sans-serif; border:2.5px solid var(--pk-l); border-radius:12px; padding:9px 13px; outline:none; color:var(--pk-d); background:var(--bg); transition:border-color .2s; width:100%; }
 input[type=text]:focus { border-color:var(--pk-d); }
-.letter-input { font-size:17px; font-weight:700; letter-spacing:4px; width:100%; }
+.letter-input { font-size:17px; font-weight:700; letter-spacing:4px; }
 .letter-input::placeholder { letter-spacing:2px; opacity:.35; font-weight:400; }
 
 /* FABRIC PICKER */
-.fabrics-scroll { display:flex; flex-wrap:wrap; gap:8px; }
-.fabric-chip { display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; }
+.fabrics-grid { display:flex; flex-wrap:wrap; gap:10px; }
+.fabric-chip { display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; position:relative; }
 .fabric-thumb-wrap { position:relative; }
-.fabric-thumb { width:56px; height:56px; border-radius:10px; border:2.5px solid var(--pk-l); overflow:hidden; transition:border-color .2s,transform .15s,opacity .15s; }
-.fabric-chip:hover .fabric-thumb { border-color:var(--pk-d); transform:scale(1.06); }
-.fabric-chip.deselected .fabric-thumb { opacity:.28; }
+.fabric-thumb { width:62px; height:62px; border-radius:12px; border:2.5px solid var(--pk-l); overflow:hidden; transition:border-color .2s,transform .15s,opacity .15s; }
+.fabric-chip:hover .fabric-thumb { border-color:var(--pk-d); transform:scale(1.05); }
+.fabric-chip.deselected .fabric-thumb { opacity:.25; border-color:var(--pk-l); }
 .fabric-chip.selected .fabric-thumb { border-color:var(--pk-d); border-width:3px; }
-.chip-check { position:absolute; bottom:2px; left:2px; width:16px; height:16px; border-radius:50%; background:var(--pk-d); display:none; align-items:center; justify-content:center; }
-.chip-check svg { width:9px; height:9px; stroke:#fff; stroke-width:2.5; fill:none; }
+.chip-check { position:absolute; bottom:3px; left:3px; width:18px; height:18px; border-radius:50%; background:var(--pk-d); display:none; align-items:center; justify-content:center; box-shadow:0 1px 4px rgba(0,0,0,.15); }
+.chip-check svg { width:10px; height:10px; stroke:#fff; stroke-width:2.5; fill:none; }
 .fabric-chip.selected .chip-check { display:flex; }
 .fabric-thumb img { width:100%; height:100%; object-fit:cover; }
-.chip-name { font-size:8px; font-weight:600; color:var(--pk-d); opacity:.65; max-width:56px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.chip-name { font-size:9px; font-weight:600; color:var(--pk-d); opacity:.7; max-width:62px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
 /* FILTER */
-.filter-bar { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:10px 0 2px; border-top:1.5px solid var(--pk-l); margin-top:12px; }
-.filter-label { font-size:11px; font-weight:700; color:var(--pk-d); opacity:.7; text-transform:uppercase; letter-spacing:.6px; white-space:nowrap; }
-.fchip { font-size:11px; font-weight:700; padding:5px 13px; border-radius:50px; background:var(--pk-l); color:var(--pk-d); cursor:pointer; border:2px solid transparent; white-space:nowrap; transition:all .15s; }
+.filter-bar { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:12px 0 2px; border-top:1.5px solid var(--pk-l); margin-top:12px; }
+.filter-label { font-size:11px; font-weight:700; color:var(--pk-d); opacity:.6; text-transform:uppercase; letter-spacing:.6px; white-space:nowrap; }
+.filter-chips-wrap { display:flex; flex-wrap:wrap; gap:6px; flex:1; }
+.fchip { font-size:11px; font-weight:700; padding:5px 12px; border-radius:50px; background:var(--pk-l); color:var(--pk-d); cursor:pointer; border:2px solid transparent; white-space:nowrap; transition:all .15s; }
+.fchip:hover { border-color:var(--pk-d); }
 .fchip.sel { background:var(--pk-d); color:#fff; border-color:var(--pk-d); }
-.fchip.all-chip.sel { background:var(--yw-d); color:var(--pk-d); border-color:var(--yw-d); }
-.pool-count { font-size:11px; color:var(--pk-d); opacity:.5; margin-left:auto; white-space:nowrap; }
+.fchip .chip-count { opacity:.6; font-size:10px; margin-left:2px; }
+.fchip.sel .chip-count { opacity:.8; }
 
 /* PREVIEW */
-.preview-area { background:#fff; border-radius:20px; padding:18px 14px 28px; box-shadow:0 4px 20px var(--sh); border:2px solid var(--pk-l); min-height:200px; position:relative; overflow:hidden; }
-.preview-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
-.preview-title { font-size:11px; font-weight:700; color:var(--pk-d); text-transform:uppercase; letter-spacing:.8px; }
-.preview-actions { display:flex; gap:6px; align-items:center; }
-.bunting-string-line { position:absolute; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent 1%,#c084a8 8%,#c084a8 92%,transparent 99%); z-index:1; display:none; }
-.bunting-wrap { display:flex; flex-wrap:nowrap; justify-content:center; padding-top:20px; position:relative; z-index:2; min-height:170px; align-items:flex-start; overflow-x:auto; }
-.flag-item { display:flex; flex-direction:column; align-items:center; cursor:pointer; transition:transform .18s; position:relative; flex-shrink:0; }
+.preview-area { background:#fff; border-radius:20px; padding:18px 14px 28px; box-shadow:0 4px 20px var(--sh); border:2px solid var(--pk-l); min-height:200px; position:relative; }
+.preview-top { display:flex; align-items:center; justify-content:flex-end; margin-bottom:6px; gap:8px; }
+
+/* Bunting container — clip the string but not the flags */
+.bunting-outer { position:relative; overflow:hidden; }
+.bunting-string-line { position:absolute; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent 1%,#c084a8 8%,#c084a8 92%,transparent 99%); z-index:1; display:none; pointer-events:none; }
+/* Allow flags to overflow vertically */
+.bunting-wrap { display:flex; flex-wrap:wrap; justify-content:center; padding-top:20px; position:relative; z-index:2; min-height:170px; align-items:flex-start; overflow-x:auto; overflow-y:visible; row-gap:28px; }
+.flag-row { display:flex; justify-content:center; align-items:flex-start; position:relative; width:100%; }
+
+.flag-item { display:flex; flex-direction:column; align-items:center; cursor:pointer; position:relative; flex-shrink:0; transition:transform .18s; }
 .flag-item:hover { transform:translateY(-4px) rotate(-2deg); }
-.flag-item.locked::after { content:'🔒'; position:absolute; bottom:4px; right:2px; font-size:9px; pointer-events:none; }
+.flag-item.locked { cursor:default; }
 .flag-string { width:2px; background:#c084a8; }
 .letter-flag { position:relative; flex-shrink:0; overflow:visible; }
+.lock-btn { position:absolute; bottom:-2px; right:-2px; width:20px; height:20px; border-radius:50%; background:#fff; border:1.5px solid var(--pk-l); display:flex; align-items:center; justify-content:center; font-size:10px; cursor:pointer; z-index:10; transition:all .15s; box-shadow:0 1px 4px var(--sh); opacity:0; }
+.flag-item:hover .lock-btn { opacity:1; }
+.flag-item.locked .lock-btn { opacity:1; background:var(--pk-d); border-color:var(--pk-d); }
 .flag-space { display:flex; flex-direction:column; align-items:center; flex-shrink:0; }
+
+/* Flash animation for fabric cycle */
+@keyframes flagFlash { 0%{opacity:1} 30%{opacity:.4} 100%{opacity:1} }
+.flag-item.cycling .letter-flag { animation:flagFlash .25s ease; }
+
 .empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; color:var(--pk-m); font-size:13px; padding:30px 20px; text-align:center; min-height:170px; width:100%; }
 .empty-state svg { width:44px; height:44px; opacity:.4; }
 .warn { width:100%; text-align:center; padding:40px 20px; font-size:12px; color:var(--pk-d); opacity:.6; }
+
+/* FULL SCREEN states */
 .full-screen { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:80vh; gap:12px; color:var(--pk-d); font-size:14px; opacity:.7; }
+
+/* TOAST */
 .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--pk-d); color:#fff; font-size:13px; font-weight:700; padding:10px 22px; border-radius:50px; z-index:300; opacity:0; transition:opacity .25s,transform .25s; pointer-events:none; white-space:nowrap; }
 .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 </style>
@@ -91,54 +139,79 @@ input[type=text]:focus { border-color:var(--pk-d); }
 
 <div id="mainApp" style="display:none">
   <div class="app">
+
+    <!-- HEADER -->
     <div class="header">
       <div class="business-name" id="businessName"></div>
       <div class="header-sub">design your own bunting ✨</div>
     </div>
 
-    <!-- COLOURS/PATTERNS PICKER -->
-    <div class="card">
-      <div class="section-title">choose your colours &amp; patterns</div>
-      <div class="fabrics-scroll" id="fabricsGrid"></div>
-      <div class="filter-bar" id="filterBar" style="display:none">
-        <span class="filter-label">filter</span>
-        <div id="filterChips" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
-        <span class="pool-count" id="poolCount"></span>
+    <!-- STEPS -->
+    <div class="steps" id="stepsBar">
+      <div class="step active" id="step1">
+        <div class="step-num">1</div>
+        <span>choose colours</span>
+      </div>
+      <div class="step-arrow">›</div>
+      <div class="step" id="step2">
+        <div class="step-num">2</div>
+        <span>type your name</span>
+      </div>
+      <div class="step-arrow">›</div>
+      <div class="step" id="step3">
+        <div class="step-num">3</div>
+        <span>download</span>
       </div>
     </div>
 
-    <!-- CONTROLS -->
+    <!-- COLOURS PICKER -->
+    <div class="card">
+      <div class="card-header">
+        <span class="section-title">colours &amp; patterns</span>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn-link" onclick="selectAll()">select all</button>
+          <button class="btn-link" onclick="deselectAll()">clear</button>
+        </div>
+      </div>
+      <div class="fabrics-grid" id="fabricsGrid"></div>
+      <div class="filter-bar" id="filterBar" style="display:none">
+        <span class="filter-label">filter by tag</span>
+        <div class="filter-chips-wrap" id="filterChips"></div>
+      </div>
+    </div>
+
+    <!-- LETTERS -->
     <div class="card">
       <div style="margin-bottom:14px;">
-        <label>your letters</label>
+        <label>type your name or word</label>
         <input type="text" class="letter-input" id="letterInput" placeholder="e.g. MAYA" maxlength="30" oninput="onLetterInput()">
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn btn-yellow" onclick="randomiseFabrics()">randomise</button>
-        <button class="btn btn-pink" onclick="randomiseFabrics()">shuffle all</button>
-        <button class="btn btn-ghost" onclick="clearAll()">clear</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <button class="btn btn-yellow" onclick="randomiseFabrics()">&#x2684; randomise</button>
+        <button class="btn btn-ghost" id="clearBtn" onclick="confirmClear()">clear</button>
       </div>
     </div>
 
     <!-- PREVIEW -->
     <div class="preview-area" id="previewArea">
-      <div class="preview-header">
-        <span class="preview-title">preview</span>
-        <div class="preview-actions" id="previewActions" style="display:none">
-          <button class="btn btn-sm btn-ghost" id="downloadBtn" onclick="downloadBunting()">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 19h14M19 13l-7 7-7-7"/></svg>
-            download
-          </button>
+      <div class="preview-top">
+        <button class="btn btn-sm btn-ghost" id="downloadBtn" onclick="downloadBunting()" disabled>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 19h14M19 13l-7 7-7-7"/></svg>
+          download
+        </button>
+      </div>
+      <div class="bunting-outer" id="buntingOuter">
+        <div class="bunting-string-line" id="buntingStringLine"></div>
+        <div class="bunting-wrap" id="buntingWrap">
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            <div>choose some colours &amp; patterns<br>then type your name above!</div>
+          </div>
         </div>
       </div>
-      <div class="bunting-string-line" id="buntingStringLine"></div>
-      <div class="bunting-wrap" id="buntingWrap">
-        <div class="empty-state">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-          <div>choose colours &amp; patterns above and type your letters<br>to preview your bunting!</div>
-        </div>
-      </div>
+      <p style="font-size:10px;color:var(--pk-d);opacity:.4;text-align:center;margin-top:12px;">tap a flag to cycle fabric &nbsp;·&nbsp; tap 🔒 to lock it</p>
     </div>
+
   </div>
 </div>
 
@@ -149,12 +222,11 @@ const SUPABASE_URL = 'https://xrdoigayaxwbltsprwmq.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhyZG9pZ2F5YXh3Ymx0c3Byd21xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NTI2NTEsImV4cCI6MjA5NTIyODY1MX0.QF37ru2AGJCVsVb_tZ9MRRjsKrzD7QEI-ZFX6Y3m4fo';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Font definitions — scale factors tuned per font
 const FONTS = {
-  passion: { family:"'Passion One', sans-serif",   weight:'900', scaleUpper:1.62 },
-  cherry:  { family:"'Cherry Bomb One', cursive",   weight:'400', scaleUpper:1.38 },
-  lilita:  { family:"'Lilita One', sans-serif",     weight:'400', scaleUpper:1.52 },
-  nunito:  { family:"'Nunito', sans-serif",          weight:'900', scaleUpper:1.58 },
+  passion: { family:"'Passion One',sans-serif",  weight:'900', scale:1.62 },
+  cherry:  { family:"'Cherry Bomb One',cursive",  weight:'400', scale:1.38 },
+  lilita:  { family:"'Lilita One',sans-serif",    weight:'400', scale:1.52 },
+  nunito:  { family:"'Nunito',sans-serif",         weight:'900', scale:1.58 },
 };
 
 let allFabrics = [];
@@ -163,36 +235,28 @@ let activeFilters = new Set();
 let letterFabricMap = {};
 let lockedKeys = new Set();
 let fontsReady = false;
-let currentFont = 'passion'; // overridden by maker's saved preference
-
+let currentFont = 'passion';
 let FLAG_W=100, FLAG_H=100, CANVAS_W=100, CANVAS_H=100, SPACE_W=36, STR_H=18, FONT_SIZE=120;
 
 // ── INIT ──────────────────────────────────────────────────
 async function init() {
   const slug = window.location.pathname.split('/').filter(Boolean).pop();
   if (!slug) { showError('no maker link provided'); return; }
-
   const { data: maker, error } = await sb.from('makers').select('*').eq('slug', slug).maybeSingle();
   if (error || !maker) { showError('"' + slug + '" not found'); return; }
-
   document.title = (maker.business_name || maker.slug) + ' — Bunting Previewer';
-  document.getElementById('businessName').textContent = maker.business_name || maker.slug;
-
-  // Use maker's chosen font
+  // Apply maker's font to business name
+  const nameEl = document.getElementById('businessName');
+  nameEl.textContent = maker.business_name || maker.slug;
   currentFont = maker.font || 'passion';
-
+  nameEl.className = 'business-name ' + currentFont;
   const { data: fabrics } = await sb.from('fabrics').select('*')
     .eq('maker_id', maker.id).eq('in_pool', true)
     .order('sort_order').order('created_at');
   allFabrics = fabrics || [];
-
   if (!allFabrics.length) { showError('no colours or patterns added yet — check back soon!'); return; }
-
-  // Start with nothing selected — customer chooses their own fabrics
-
   document.getElementById('loadingScreen').style.display = 'none';
   document.getElementById('mainApp').style.display = 'block';
-
   renderFabricPicker();
   renderFilterBar();
   await document.fonts.ready;
@@ -207,6 +271,15 @@ function showError(msg) {
   document.getElementById('errorScreen').style.display = 'flex';
 }
 
+// ── STEPS INDICATOR ───────────────────────────────────────
+function updateSteps() {
+  const hasFabrics = selectedIds.size > 0;
+  const hasLetters = getTokens().filter(t => t.type === 'letter').length > 0;
+  document.getElementById('step1').classList.toggle('active', true);
+  document.getElementById('step2').classList.toggle('active', hasFabrics);
+  document.getElementById('step3').classList.toggle('active', hasFabrics && hasLetters);
+}
+
 // ── SIZING ────────────────────────────────────────────────
 function calcFlagSize() {
   const area = document.getElementById('previewArea'); if (!area) return;
@@ -215,98 +288,115 @@ function calcFlagSize() {
   SPACE_W = Math.round(FLAG_W * 0.38);
   STR_H = Math.round(FLAG_W * 0.18);
   const f = FONTS[currentFont];
-  FONT_SIZE = Math.round(FLAG_W * f.scaleUpper);
+  FONT_SIZE = Math.round(FLAG_W * f.scale);
   const probe = document.createElement('canvas');
   probe.width = FONT_SIZE * 3; probe.height = FONT_SIZE * 3;
   const pctx = probe.getContext('2d');
   pctx.font = f.weight + ' ' + FONT_SIZE + 'px ' + f.family;
-  const m = pctx.measureText('ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+  const m = pctx.measureText('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');
   const ascent  = m.actualBoundingBoxAscent  > 0 ? m.actualBoundingBoxAscent  : FONT_SIZE * 0.78;
   const descent = m.actualBoundingBoxDescent > 0 ? m.actualBoundingBoxDescent : FONT_SIZE * 0.22;
   const pad = Math.round(FONT_SIZE * 0.08);
   CANVAS_H = Math.ceil(ascent + descent + pad * 2);
   FLAG_H = CANVAS_H;
   let maxW = 0;
-  'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(ch => {
-    const w = pctx.measureText(ch).width; if (w > maxW) maxW = w;
-  });
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(ch => { const w = pctx.measureText(ch).width; if (w > maxW) maxW = w; });
   CANVAS_W = Math.ceil(Math.max(FLAG_W, maxW) + Math.round(FONT_SIZE * 0.06) * 2);
 }
 window.addEventListener('resize', () => { calcFlagSize(); renderBunting(); });
 
 // ── FABRIC PICKER ─────────────────────────────────────────
 function toggleFabric(id) {
-  if (selectedIds.has(id)) {
-    selectedIds.delete(id);
-  } else { selectedIds.add(id); }
+  if (selectedIds.has(id)) { selectedIds.delete(id); }
+  else { selectedIds.add(id); }
   renderFabricPicker();
+  updateSteps();
   const pool = getPool();
-  getTokens().forEach(t => {
-    if (t.type !== 'letter' || lockedKeys.has(t.key)) return;
-    if (!selectedIds.has(letterFabricMap[t.key])) {
-      letterFabricMap[t.key] = pool[Math.floor(Math.random() * pool.length)]?.id;
-    }
-  });
+  if (pool.length > 0) {
+    getTokens().forEach(t => {
+      if (t.type !== 'letter' || lockedKeys.has(t.key)) return;
+      if (!selectedIds.has(letterFabricMap[t.key])) {
+        const fallback = pool[Math.floor(Math.random() * pool.length)];
+        if (fallback) letterFabricMap[t.key] = fallback.id;
+      }
+    });
+  }
   renderBunting();
 }
 
-function renderFabricPicker() {
-  // When a filter is active, only show fabrics matching that tag
+function selectAll() {
   const visible = activeFilters.size > 0
-    ? allFabrics.filter(f => [...activeFilters].every(t => (f.tags || []).includes(t)))
+    ? allFabrics.filter(f => [...activeFilters].every(t => (f.tags||[]).includes(t)))
+    : allFabrics;
+  visible.forEach(f => selectedIds.add(f.id));
+  renderFabricPicker(); updateSteps(); renderBunting();
+}
+
+function deselectAll() {
+  const visible = activeFilters.size > 0
+    ? allFabrics.filter(f => [...activeFilters].every(t => (f.tags||[]).includes(t)))
+    : allFabrics;
+  visible.forEach(f => selectedIds.delete(f.id));
+  renderFabricPicker(); updateSteps(); renderBunting();
+}
+
+function renderFabricPicker() {
+  const visible = activeFilters.size > 0
+    ? allFabrics.filter(f => [...activeFilters].every(t => (f.tags||[]).includes(t)))
     : allFabrics;
   document.getElementById('fabricsGrid').innerHTML = visible.map(f => {
     const isSel = selectedIds.has(f.id);
-    return '<div class="fabric-chip ' + (isSel ? 'selected' : 'deselected') + '" onclick="toggleFabric(\'' + f.id + '\')">'
+    return '<div class="fabric-chip ' + (isSel?'selected':'deselected') + '" onclick="toggleFabric(\'' + f.id + '\')">'
       + '<div class="fabric-thumb-wrap">'
       + '<div class="fabric-thumb"><img src="' + f.public_url + '" alt="' + esc(f.name) + '" loading="lazy"></div>'
       + '<div class="chip-check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>'
       + '</div>'
-      + '<span class="chip-name">' + esc(f.name) + '</span></div>';
+      + '<span class="chip-name">' + esc(f.name) + '</span>'
+      + '</div>';
   }).join('');
 }
 
 // ── TAG FILTER ────────────────────────────────────────────
-function getAllTags() { const s = new Set(); allFabrics.forEach(f => (f.tags || []).forEach(t => s.add(t))); return [...s].sort(); }
-function renderFilterBar() {
-  const bar = document.getElementById('filterBar'), tags = getAllTags();
-  if (!tags.length) { bar.style.display = 'none'; return; }
-  bar.style.display = 'flex';
-  let html = '<span class="fchip all-chip' + (activeFilters.size === 0 ? ' sel' : '') + '" onclick="clearFilters()">all</span>';
-  tags.forEach(t => { html += '<span class="fchip' + (activeFilters.has(t) ? ' sel' : '') + '" onclick="toggleFilter(\'' + esc(t) + '\')">' + esc(t) + '</span>'; });
-  document.getElementById('filterChips').innerHTML = html;
-  document.getElementById('poolCount').textContent = activeFilters.size > 0 ? getPool().length + ' of ' + allFabrics.length : '';
+function getAllTags() {
+  const counts = {};
+  allFabrics.forEach(f => (f.tags||[]).forEach(t => { counts[t] = (counts[t]||0)+1; }));
+  return Object.entries(counts).sort((a,b) => a[0].localeCompare(b[0]));
 }
+
+function renderFilterBar() {
+  const bar = document.getElementById('filterBar');
+  const tags = getAllTags();
+  if (!tags.length) { bar.style.display='none'; return; }
+  bar.style.display = 'flex';
+  let html = '';
+  tags.forEach(([t, count]) => {
+    html += '<span class="fchip' + (activeFilters.has(t)?' sel':'') + '" onclick="toggleFilter(\'' + esc(t) + '\')">'
+      + esc(t) + '<span class="chip-count">(' + count + ')</span></span>';
+  });
+  document.getElementById('filterChips').innerHTML = html;
+}
+
 function toggleFilter(tag) {
-  if (activeFilters.has(tag)) {
-    activeFilters.delete(tag);
-  } else {
-    activeFilters.add(tag);
-  }
-  // When filter is active: auto-select only fabrics matching the filter, deselect others
-  // When no filter: restore all fabrics to selected
+  if (activeFilters.has(tag)) { activeFilters.delete(tag); }
+  else { activeFilters.add(tag); }
+  // Auto-select fabrics matching ALL active filters, deselect others from this view
   if (activeFilters.size > 0) {
     selectedIds.clear();
     allFabrics.forEach(f => {
-      if ([...activeFilters].every(t => (f.tags || []).includes(t))) selectedIds.add(f.id);
+      if ([...activeFilters].every(t => (f.tags||[]).includes(t))) selectedIds.add(f.id);
     });
-  } else {
-    // Filter cleared — keep current selections as-is, just show all fabrics
   }
   renderFilterBar();
   renderFabricPicker();
+  updateSteps();
   if (getTokens().length > 0) randomiseFabrics();
+  else renderBunting();
 }
-function clearFilters() {
-  activeFilters.clear();
-  renderFilterBar();
-  renderFabricPicker();
-  if (getTokens().length > 0) renderBunting();
-}
+
 function getPool() {
   let pool = allFabrics.filter(f => selectedIds.has(f.id));
   if (activeFilters.size > 0) {
-    const filtered = pool.filter(f => [...activeFilters].every(t => (f.tags || []).includes(t)));
+    const filtered = pool.filter(f => [...activeFilters].every(t => (f.tags||[]).includes(t)));
     if (filtered.length > 0) pool = filtered;
   }
   return pool;
@@ -314,30 +404,45 @@ function getPool() {
 
 // ── LETTERS ───────────────────────────────────────────────
 function getTokens() {
-  return document.getElementById('letterInput').value.split('').map((ch, i) => ({
-    type: ch === ' ' ? 'space' : 'letter', char: ch, key: i + ':' + ch
+  return document.getElementById('letterInput').value.split('').map((ch,i) => ({
+    type: ch===' '?'space':'letter', char:ch, key:i+':'+ch
   }));
 }
+
 function onLetterInput() {
-  const tokens = getTokens(); const vk = new Set(tokens.map(t => t.key));
+  const tokens = getTokens();
+  const vk = new Set(tokens.map(t=>t.key));
   Object.keys(letterFabricMap).forEach(k => { if (!vk.has(k)) delete letterFabricMap[k]; });
   lockedKeys.forEach(k => { if (!vk.has(k)) lockedKeys.delete(k); });
+  updateSteps();
   renderBunting();
 }
+
 function randomiseFabrics() {
   const pool = getPool(); if (!pool.length) { renderBunting(); return; }
-  const letterTokens = getTokens().filter(t => t.type === 'letter' && !lockedKeys.has(t.key));
+  const letterTokens = getTokens().filter(t => t.type==='letter' && !lockedKeys.has(t.key));
   if (!letterTokens.length) { renderBunting(); return; }
-  // Shuffle pool for no-repeat assignment
-  const shuffled = [...pool].sort(() => Math.random() - 0.5);
-  letterTokens.forEach((t, i) => {
-    // Cycle through shuffled pool — only repeats if more letters than fabrics
-    letterFabricMap[t.key] = shuffled[i % shuffled.length].id;
-  });
+  const shuffled = [...pool].sort(() => Math.random()-0.5);
+  letterTokens.forEach((t,i) => { letterFabricMap[t.key] = shuffled[i % shuffled.length].id; });
   renderBunting();
 }
-function clearAll() { document.getElementById('letterInput').value = ''; letterFabricMap = {}; lockedKeys.clear(); renderBunting(); }
-function toggleLock(key) { lockedKeys.has(key) ? lockedKeys.delete(key) : lockedKeys.add(key); renderBunting(); }
+
+function confirmClear() {
+  if (!document.getElementById('letterInput').value) return;
+  if (confirm('Clear your name and start over?')) { clearAll(); }
+}
+
+function clearAll() {
+  document.getElementById('letterInput').value='';
+  letterFabricMap={}; lockedKeys.clear();
+  updateSteps(); renderBunting();
+}
+
+function toggleLock(key, e) {
+  e.stopPropagation();
+  lockedKeys.has(key) ? lockedKeys.delete(key) : lockedKeys.add(key);
+  renderBunting();
+}
 
 // ── RENDER BUNTING ────────────────────────────────────────
 function renderBunting() {
@@ -345,121 +450,197 @@ function renderBunting() {
   const tokens = getTokens(), pool = getPool();
   const wrap = document.getElementById('buntingWrap');
   const strLine = document.getElementById('buntingStringLine');
-  const acts = document.getElementById('previewActions');
+  const dlBtn = document.getElementById('downloadBtn');
+  const letterTokens = tokens.filter(t => t.type==='letter');
 
-  if (!tokens.length) {
-    wrap.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg><div>choose colours &amp; patterns above and type your letters<br>to preview your bunting!</div></div>';
-    strLine.style.display = 'none'; acts.style.display = 'none'; return;
-  }
-  if (!pool.length) {
-    wrap.innerHTML = '<div class="warn">select at least one colour or pattern above!</div>';
-    strLine.style.display = 'none'; acts.style.display = 'none'; return;
+  if (!tokens.length || !letterTokens.length) {
+    wrap.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg><div>choose some colours &amp; patterns<br>then type your name above!</div></div>';
+    strLine.style.display='none';
+    dlBtn.disabled = true;
+    return;
   }
 
-  strLine.style.top = (18 + 6 + 20 + STR_H / 2) + 'px';
-  strLine.style.display = 'block'; acts.style.display = 'flex';
+  dlBtn.disabled = false;
   wrap.innerHTML = '';
 
+  // Break tokens into rows of 9 max (to match flag sizing)
+  const rows = [];
+  let row = [];
+  let letterCount = 0;
   tokens.forEach(token => {
-    if (token.type === 'space') {
-      const sp = document.createElement('div'); sp.className = 'flag-space'; sp.style.width = SPACE_W + 'px';
-      const se = document.createElement('div'); se.style.height = STR_H + 'px'; se.style.width = '2px';
-      const gap = document.createElement('div'); gap.style.width = SPACE_W + 'px'; gap.style.height = FLAG_H + 'px';
-      sp.appendChild(se); sp.appendChild(gap); wrap.appendChild(sp); return;
-    }
-    const cur = allFabrics.find(f => f.id === letterFabricMap[token.key]);
-    const inPool = cur && pool.find(f => f.id === cur.id);
-    if (!inPool && pool.length && !lockedKeys.has(token.key)) letterFabricMap[token.key] = pool[Math.floor(Math.random() * pool.length)].id;
-    const fabric = allFabrics.find(f => f.id === letterFabricMap[token.key]) || pool[0] || null;
-    const isLocked = lockedKeys.has(token.key);
-    const item = document.createElement('div'); item.className = 'flag-item' + (isLocked ? ' locked' : '');
-    item.title = isLocked ? 'click to unlock' : 'click to cycle \u00b7 shift+click to lock';
-    item.onclick = e => { if (e.shiftKey) { toggleLock(token.key); } else if (!isLocked) { cycleFabric(token.key); } else { toggleLock(token.key); } };
-    const str = document.createElement('div'); str.className = 'flag-string'; str.style.height = STR_H + 'px';
-    const flag = document.createElement('div'); flag.className = 'letter-flag'; flag.style.width = FLAG_W + 'px'; flag.style.height = FLAG_H + 'px'; flag.style.overflow = 'visible';
-    item.appendChild(str); item.appendChild(flag); wrap.appendChild(item);
-    drawLetterFlag(flag, token.char, fabric ? fabric.public_url : null);
+    row.push(token);
+    if (token.type === 'letter') letterCount++;
+    if (letterCount === 9) { rows.push(row); row=[]; letterCount=0; }
   });
+  if (row.length) rows.push(row);
+
+  const multiRow = rows.length > 1;
+
+  // Position string line at top of first row
+  strLine.style.top = (STR_H / 2) + 'px';
+  strLine.style.display = 'block';
+
+  // If multi-row, we draw our own string per row inside the wrap
+  rows.forEach((rowTokens, rowIdx) => {
+    const rowDiv = document.createElement('div');
+    rowDiv.style.cssText = 'display:flex;justify-content:center;align-items:flex-start;position:relative;width:100%;';
+
+    // Draw a string line for each row except first (first uses the absolute one)
+    if (multiRow && rowIdx > 0) {
+      const rowStr = document.createElement('div');
+      rowStr.style.cssText = 'position:absolute;top:' + (STR_H/2) + 'px;left:5%;right:5%;height:2px;background:linear-gradient(90deg,transparent 0%,#c084a8 5%,#c084a8 95%,transparent 100%);z-index:1;pointer-events:none;';
+      rowDiv.appendChild(rowStr);
+    }
+
+    rowTokens.forEach(token => {
+      if (token.type==='space') {
+        const sp = document.createElement('div');
+        sp.style.cssText = 'display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:' + SPACE_W + 'px;';
+        const se = document.createElement('div'); se.style.cssText = 'height:' + STR_H + 'px;width:2px;';
+        const gap = document.createElement('div'); gap.style.cssText = 'width:' + SPACE_W + 'px;height:' + FLAG_H + 'px;';
+        sp.appendChild(se); sp.appendChild(gap); rowDiv.appendChild(sp); return;
+      }
+
+      const cur = allFabrics.find(f=>f.id===letterFabricMap[token.key]);
+      const inPool = cur && pool.find(f=>f.id===cur.id);
+      if (!inPool && pool.length && !lockedKeys.has(token.key)) {
+        const shuffled = [...pool].sort(()=>Math.random()-.5);
+        letterFabricMap[token.key] = shuffled[0].id;
+      }
+      const fabric = allFabrics.find(f=>f.id===letterFabricMap[token.key]) || pool[0] || null;
+      const isLocked = lockedKeys.has(token.key);
+
+      const item = document.createElement('div');
+      item.className = 'flag-item' + (isLocked?' locked':'');
+      item.style.cssText = 'position:relative;';
+      item.onclick = () => { if (!isLocked) cycleFabric(token.key, item); };
+
+      const str = document.createElement('div');
+      str.className='flag-string'; str.style.height=STR_H+'px';
+
+      const flag = document.createElement('div');
+      flag.className='letter-flag'; flag.style.width=FLAG_W+'px'; flag.style.height=FLAG_H+'px'; flag.style.overflow='visible';
+
+      // Visible lock button
+      const lockBtn = document.createElement('button');
+      lockBtn.className = 'lock-btn';
+      lockBtn.title = isLocked ? 'unlock' : 'lock this fabric';
+      lockBtn.innerHTML = isLocked ? '🔒' : '🔓';
+      lockBtn.onclick = e => toggleLock(token.key, e);
+
+      item.appendChild(str); item.appendChild(flag); item.appendChild(lockBtn);
+      rowDiv.appendChild(item);
+      drawLetterFlag(flag, token.char, fabric?fabric.public_url:null);
+    });
+
+    wrap.appendChild(rowDiv);
+  });
+
+  // Hide the absolute string line if multi-row (each row has its own)
+  if (multiRow) strLine.style.display = 'none';
 }
 
-function cycleFabric(key) {
+function cycleFabric(key, itemEl) {
   const pool = getPool(); if (pool.length <= 1) return;
-  const idx = pool.findIndex(f => f.id === letterFabricMap[key]);
-  letterFabricMap[key] = pool[(idx + 1) % pool.length].id;
-  const tokens = getTokens().filter(t => t.type === 'letter');
-  const ti = tokens.findIndex(t => t.key === key);
+  const idx = pool.findIndex(f=>f.id===letterFabricMap[key]);
+  letterFabricMap[key] = pool[(idx+1)%pool.length].id;
+  // Flash animation
+  if (itemEl) { itemEl.classList.add('cycling'); setTimeout(()=>itemEl.classList.remove('cycling'),260); }
+  // Redraw just this flag
+  const tokens = getTokens().filter(t=>t.type==='letter');
+  const ti = tokens.findIndex(t=>t.key===key);
   const items = document.querySelectorAll('.flag-item');
   if (items[ti]) {
     const flag = items[ti].querySelector('.letter-flag');
-    if (flag) { flag.innerHTML = ''; const f = allFabrics.find(f => f.id === letterFabricMap[key]); drawLetterFlag(flag, tokens[ti].char, f ? f.public_url : null); }
+    if (flag) { flag.innerHTML=''; const f=allFabrics.find(f=>f.id===letterFabricMap[key]); drawLetterFlag(flag,tokens[ti].char,f?f.public_url:null); }
   }
 }
 
 // ── CANVAS ────────────────────────────────────────────────
 function drawLetterFlag(container, letter, fabricUrl) {
-  const W = CANVAS_W, H = CANVAS_H, S = 2;
+  const W=CANVAS_W, H=CANVAS_H, S=2;
   const canvas = document.createElement('canvas');
-  canvas.width = W * S; canvas.height = H * S;
-  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
-  canvas.style.position = 'relative'; canvas.style.left = ((FLAG_W - W) / 2) + 'px';
+  canvas.width=W*S; canvas.height=H*S;
+  canvas.style.width=W+'px'; canvas.style.height=H+'px';
+  canvas.style.position='relative'; canvas.style.left=((FLAG_W-W)/2)+'px';
   container.appendChild(canvas);
-  const ctx = canvas.getContext('2d'); ctx.scale(S, S);
-  const f = FONTS[currentFont];
-  const font = f.weight + ' ' + FONT_SIZE + 'px ' + f.family;
-
+  const ctx=canvas.getContext('2d'); ctx.scale(S,S);
+  const f=FONTS[currentFont];
+  const font=f.weight+' '+FONT_SIZE+'px '+f.family;
   function render(img) {
-    ctx.clearRect(0, 0, W, H);
-    ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = 'rgba(150,140,145,0.38)';
-    ctx.fillText(letter, W / 2 + 1.5, H / 2 + 1.5);
-    const off = document.createElement('canvas'); off.width = W; off.height = H;
-    const ox = off.getContext('2d');
-    ox.font = font; ox.textAlign = 'center'; ox.textBaseline = 'middle';
-    ox.fillStyle = '#000'; ox.fillText(letter, W / 2, H / 2);
-    ox.globalCompositeOperation = 'source-in';
-    if (img) { ox.drawImage(img, 0, 0, W, H); } else { ox.fillStyle = '#c0bcbe'; ox.fillRect(0, 0, W, H); }
-    ctx.drawImage(off, 0, 0, W, H);
-    ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.lineWidth = 1;
-    ctx.strokeText(letter, W / 2, H / 2);
+    ctx.clearRect(0,0,W,H);
+    ctx.font=font; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillStyle='rgba(150,140,145,0.35)';
+    ctx.fillText(letter,W/2+1.5,H/2+1.5);
+    const off=document.createElement('canvas'); off.width=W; off.height=H;
+    const ox=off.getContext('2d');
+    ox.font=font; ox.textAlign='center'; ox.textBaseline='middle';
+    ox.fillStyle='#000'; ox.fillText(letter,W/2,H/2);
+    ox.globalCompositeOperation='source-in';
+    if(img){ox.drawImage(img,0,0,W,H);}else{ox.fillStyle='#c0bcbe';ox.fillRect(0,0,W,H);}
+    ctx.drawImage(off,0,0,W,H);
+    ctx.strokeStyle='rgba(255,255,255,0.45)'; ctx.lineWidth=1;
+    ctx.strokeText(letter,W/2,H/2);
   }
-
-  if (fabricUrl) { const img = new Image(); img.crossOrigin = 'anonymous'; img.onload = () => render(img); img.onerror = () => render(null); img.src = fabricUrl; }
-  else { render(null); }
+  if(fabricUrl){const img=new Image();img.crossOrigin='anonymous';img.onload=()=>render(img);img.onerror=()=>render(null);img.src=fabricUrl;}
+  else{render(null);}
 }
 
 // ── DOWNLOAD ──────────────────────────────────────────────
 function downloadBunting() {
-  const tokens = getTokens(); if (!tokens.length) return;
-  const btn = document.getElementById('downloadBtn'); btn.textContent = 'preparing...'; btn.disabled = true;
-  const GAP = 1, PAD = 20, FW = FLAG_W, FH = FLAG_H, SP_W = SPACE_W, SH = STR_H;
-  let totalW = PAD * 2; tokens.forEach(t => { totalW += (t.type === 'space' ? SP_W : FW) + GAP; }); totalW -= GAP;
-  const totalH = FH + SH + PAD * 2;
-  const lc = tokens.filter(t => t.type === 'letter').length;
-  function allReady() { return document.querySelectorAll('.letter-flag canvas').length === lc; }
-  function doDownload() {
-    const out = document.createElement('canvas'); out.width = totalW * 2; out.height = totalH * 2;
-    const ctx = out.getContext('2d'); ctx.scale(2, 2);
-    ctx.fillStyle = '#fdf0f6'; ctx.fillRect(0, 0, totalW, totalH);
-    ctx.strokeStyle = '#c084a8'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(PAD, PAD + SH / 2); ctx.lineTo(totalW - PAD, PAD + SH / 2); ctx.stroke();
-    let x = PAD, ci = 0; const lcs = document.querySelectorAll('.letter-flag canvas');
-    tokens.forEach(t => {
-      if (t.type === 'space') { x += SP_W + GAP; return; }
-      const fc = lcs[ci++]; const cx = x + FW / 2;
-      ctx.strokeStyle = '#c084a8'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(cx, PAD + SH / 2); ctx.lineTo(cx, PAD + SH); ctx.stroke();
-      if (fc) ctx.drawImage(fc, x, PAD + SH, FW, FH);
-      x += FW + GAP;
+  const tokens=getTokens(); if(!tokens.length) return;
+  const btn=document.getElementById('downloadBtn'); btn.textContent='preparing...'; btn.disabled=true;
+  const GAP=1,PAD=20,FW=FLAG_W,FH=FLAG_H,SP_W=SPACE_W,SH=STR_H;
+
+  // Build rows same as render
+  const rows=[]; let row=[]; let lc=0;
+  tokens.forEach(t=>{ row.push(t); if(t.type==='letter') lc++; if(lc===9){rows.push(row);row=[];lc=0;} });
+  if(row.length) rows.push(row);
+
+  const rowW = rows.reduce((max,r)=>{
+    let w=PAD*2; r.forEach(t=>{w+=(t.type==='space'?SP_W:FW)+GAP;}); w-=GAP;
+    return Math.max(max,w);
+  },0);
+  const totalW=rowW;
+  const totalH=(FH+SH)*rows.length+PAD*2+(rows.length-1)*PAD;
+
+  const letterCount=tokens.filter(t=>t.type==='letter').length;
+  function allReady(){return document.querySelectorAll('.letter-flag canvas').length===letterCount;}
+  function doDownload(){
+    const out=document.createElement('canvas'); out.width=totalW*2; out.height=totalH*2;
+    const ctx=out.getContext('2d'); ctx.scale(2,2);
+    ctx.fillStyle='#fdf0f6'; ctx.fillRect(0,0,totalW,totalH);
+
+    let canvasIdx=0;
+    const lcs=document.querySelectorAll('.letter-flag canvas');
+
+    rows.forEach((rowTokens,ri)=>{
+      const rowY=PAD+ri*(FH+SH+PAD);
+      // String line
+      ctx.strokeStyle='#c084a8'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.moveTo(PAD,rowY+SH/2); ctx.lineTo(totalW-PAD,rowY+SH/2); ctx.stroke();
+      let x=PAD;
+      rowTokens.forEach(t=>{
+        if(t.type==='space'){x+=SP_W+GAP;return;}
+        const fc=lcs[canvasIdx++]; const cx=x+FW/2;
+        ctx.strokeStyle='#c084a8'; ctx.lineWidth=1.5;
+        ctx.beginPath(); ctx.moveTo(cx,rowY+SH/2); ctx.lineTo(cx,rowY+SH); ctx.stroke();
+        if(fc) ctx.drawImage(fc,x,rowY+SH,FW,FH);
+        x+=FW+GAP;
+      });
     });
-    const link = document.createElement('a'); link.download = 'my-bunting.png'; link.href = out.toDataURL('image/png'); link.click();
-    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 19h14M19 13l-7 7-7-7"/></svg> download';
-    btn.disabled = false;
+
+    const link=document.createElement('a'); link.download='my-bunting.png'; link.href=out.toDataURL('image/png'); link.click();
+    btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 19h14M19 13l-7 7-7-7"/></svg> download';
+    btn.disabled=false;
   }
-  let attempts = 0;
-  function tryDownload() { if (allReady() || attempts > 30) { doDownload(); return; } attempts++; setTimeout(tryDownload, 100); }
+  let attempts=0;
+  function tryDownload(){if(allReady()||attempts>30){doDownload();return;}attempts++;setTimeout(tryDownload,100);}
   tryDownload();
 }
 
-function showToast(msg, d = 2200) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), d); }
-function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+function showToast(msg,d=2200){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),d);}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 
 init();
 </script>
