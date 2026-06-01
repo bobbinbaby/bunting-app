@@ -253,7 +253,7 @@ function toggleFabric(id) {
 function renderFabricPicker() {
   // When a filter is active, only show fabrics matching that tag
   const visible = activeFilters.size > 0
-    ? allFabrics.filter(f => (f.tags || []).some(t => activeFilters.has(t)))
+    ? allFabrics.filter(f => [...activeFilters].every(t => (f.tags || []).includes(t)))
     : allFabrics;
   document.getElementById('fabricsGrid').innerHTML = visible.map(f => {
     const isSel = selectedIds.has(f.id);
@@ -288,7 +288,7 @@ function toggleFilter(tag) {
   if (activeFilters.size > 0) {
     selectedIds.clear();
     allFabrics.forEach(f => {
-      if ((f.tags || []).some(t => activeFilters.has(t))) selectedIds.add(f.id);
+      if ([...activeFilters].every(t => (f.tags || []).includes(t))) selectedIds.add(f.id);
     });
   } else {
     // Filter cleared — keep current selections as-is, just show all fabrics
@@ -306,7 +306,7 @@ function clearFilters() {
 function getPool() {
   let pool = allFabrics.filter(f => selectedIds.has(f.id));
   if (activeFilters.size > 0) {
-    const filtered = pool.filter(f => (f.tags || []).some(t => activeFilters.has(t)));
+    const filtered = pool.filter(f => [...activeFilters].every(t => (f.tags || []).includes(t)));
     if (filtered.length > 0) pool = filtered;
   }
   return pool;
