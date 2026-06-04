@@ -69,10 +69,10 @@ input[type=text]:focus { border-color:var(--pk-d); }
 .fabrics-grid { display:flex; flex-wrap:wrap; gap:10px; }
 .fabric-chip { display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; position:relative; }
 .fabric-thumb-wrap { position:relative; }
-.fabric-thumb { width:62px; height:62px; border-radius:12px; border:2.5px solid var(--pk-l); overflow:hidden; transition:border-color .2s,transform .15s,opacity .15s; background:var(--pk-l); }
+.fabric-thumb { width:62px; height:62px; border-radius:12px; border:2.5px solid var(--pk-l); overflow:hidden; transition:border-color .15s,transform .15s; background:var(--pk-l); }
 .fabric-thumb img { width:100%; height:100%; object-fit:cover; display:block; transition:opacity .2s; }
 .fabric-chip:hover .fabric-thumb { border-color:var(--pk-d); transform:scale(1.05); }
-.fabric-chip.deselected .fabric-thumb { opacity:.25; border-color:var(--pk-l); }
+.fabric-chip.deselected .fabric-thumb { opacity:.28; border-color:var(--pk-l); border-width:2.5px; }
 .fabric-chip.selected .fabric-thumb { border-color:var(--pk-d); border-width:3px; }
 .chip-check { position:absolute; bottom:3px; left:3px; width:18px; height:18px; border-radius:50%; background:var(--pk-d); display:none; align-items:center; justify-content:center; box-shadow:0 1px 4px rgba(0,0,0,.15); }
 .chip-check svg { width:10px; height:10px; stroke:#fff; stroke-width:2.5; fill:none; }
@@ -344,7 +344,8 @@ function updateSteps() {
 function calcFlagSize() {
   const area = document.getElementById('previewArea'); if (!area) return;
   const innerW = area.clientWidth - 28;
-  FLAG_W = Math.floor((innerW - 8) / 9);
+  // Fit 6 letters across so flags are large and readable
+  FLAG_W = Math.floor((innerW - 5) / 6);
   SPACE_W = Math.round(FLAG_W * 0.38);
   STR_H = Math.round(FLAG_W * 0.18);
   const f = FONTS[currentFont];
@@ -369,9 +370,14 @@ window.addEventListener('resize', () => { calcFlagSize(); renderBunting(); });
 function toggleFabric(id) {
   if (selectedIds.has(id)) { selectedIds.delete(id); }
   else { selectedIds.add(id); }
-  renderFabricPicker();
+
+  // Update only the single chip that was tapped — no full re-render
+  const chip = document.querySelector('.fabric-chip[data-id="' + id + '"]');
+  if (chip) chip.className = 'fabric-chip ' + (selectedIds.has(id) ? 'selected' : 'deselected');
+
   renderSelectedTray();
   updateSteps();
+
   const pool = getPool();
   if (pool.length > 0) {
     getTokens().forEach(t => {
@@ -646,7 +652,7 @@ function cycleFabric(key, itemEl) {
 
 // ── CANVAS ────────────────────────────────────────────────
 function drawLetterFlag(container, letter, fabricUrl) {
-  const W=CANVAS_W, H=CANVAS_H, S=2;
+  const W=CANVAS_W, H=CANVAS_H, S=Math.min(window.devicePixelRatio || 2, 3);
   const canvas = document.createElement('canvas');
   canvas.width=W*S; canvas.height=H*S;
   canvas.style.width=W+'px'; canvas.style.height=H+'px';
@@ -660,8 +666,9 @@ function drawLetterFlag(container, letter, fabricUrl) {
     ctx.font=font; ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillStyle='rgba(150,140,145,0.35)';
     ctx.fillText(letter,W/2+1.5,H/2+1.5);
-    const off=document.createElement('canvas'); off.width=W; off.height=H;
-    const ox=off.getContext('2d');
+    // Offscreen at full resolution for sharp fabric fill
+    const off=document.createElement('canvas'); off.width=W*S; off.height=H*S;
+    const ox=off.getContext('2d'); ox.scale(S,S);
     ox.font=font; ox.textAlign='center'; ox.textBaseline='middle';
     ox.fillStyle='#000'; ox.fillText(letter,W/2,H/2);
     ox.globalCompositeOperation='source-in';
