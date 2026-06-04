@@ -69,14 +69,15 @@ input[type=text]:focus { border-color:var(--pk-d); }
 .fabrics-grid { display:flex; flex-wrap:wrap; gap:10px; }
 .fabric-chip { display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; position:relative; }
 .fabric-thumb-wrap { position:relative; }
-.fabric-thumb { width:62px; height:62px; border-radius:12px; border:2.5px solid var(--pk-l); overflow:hidden; transition:border-color .2s,transform .15s,opacity .15s; }
+.fabric-thumb { width:62px; height:62px; border-radius:12px; border:2.5px solid var(--pk-l); overflow:hidden; transition:border-color .2s,transform .15s,opacity .15s; background:var(--pk-l); }
+.fabric-thumb img { width:100%; height:100%; object-fit:cover; display:block; transition:opacity .2s; }
 .fabric-chip:hover .fabric-thumb { border-color:var(--pk-d); transform:scale(1.05); }
 .fabric-chip.deselected .fabric-thumb { opacity:.25; border-color:var(--pk-l); }
 .fabric-chip.selected .fabric-thumb { border-color:var(--pk-d); border-width:3px; }
 .chip-check { position:absolute; bottom:3px; left:3px; width:18px; height:18px; border-radius:50%; background:var(--pk-d); display:none; align-items:center; justify-content:center; box-shadow:0 1px 4px rgba(0,0,0,.15); }
 .chip-check svg { width:10px; height:10px; stroke:#fff; stroke-width:2.5; fill:none; }
 .fabric-chip.selected .chip-check { display:flex; }
-.fabric-thumb img { width:100%; height:100%; object-fit:cover; }
+
 .chip-name { font-size:9px; font-weight:600; color:var(--pk-d); opacity:.7; max-width:62px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
 /* SELECTED TRAY */
@@ -477,7 +478,7 @@ function renderSelectedTray() {
     var img = document.createElement('img');
     img.src = f.public_url;
     img.alt = f.name;
-    img.loading = 'lazy';
+    img.loading = 'eager';
     thumb.appendChild(img);
     var removeBtn = document.createElement('button');
     removeBtn.className = 'selected-remove';
