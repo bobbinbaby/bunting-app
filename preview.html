@@ -115,9 +115,7 @@ input[type=text]:focus { border-color:var(--pk-d); }
 .flag-item.locked { cursor:default; }
 .flag-string { width:2px; background:#c084a8; }
 .letter-flag { position:relative; flex-shrink:0; overflow:visible; }
-.lock-btn { position:absolute; bottom:-2px; right:-2px; width:20px; height:20px; border-radius:50%; background:#fff; border:1.5px solid var(--pk-l); display:flex; align-items:center; justify-content:center; font-size:10px; cursor:pointer; z-index:10; transition:all .15s; box-shadow:0 1px 4px var(--sh); opacity:0; }
-.flag-item:hover .lock-btn { opacity:1; }
-.flag-item.locked .lock-btn { opacity:1; background:var(--pk-d); border-color:var(--pk-d); }
+.flag-item.locked::before { content:'🔒'; position:absolute; bottom:2px; right:2px; font-size:11px; pointer-events:none; z-index:5; }
 .flag-space { display:flex; flex-direction:column; align-items:center; flex-shrink:0; }
 
 /* Flash animation for fabric cycle */
@@ -230,7 +228,7 @@ input[type=text]:focus { border-color:var(--pk-d); }
           </div>
         </div>
       </div>
-      <p style="font-size:10px;color:var(--pk-d);opacity:.4;text-align:center;margin-top:12px;">tap a flag to cycle fabric &nbsp;·&nbsp; tap 🔒 to lock it</p>
+      <p style="font-size:10px;color:var(--pk-d);opacity:.4;text-align:center;margin-top:12px;">tap a flag to cycle fabric &nbsp;·&nbsp; double-tap to lock it in place</p>
     </div>
 
   </div>
@@ -576,8 +574,7 @@ function clearAll() {
   updateSteps(); renderBunting();
 }
 
-function toggleLock(key, e) {
-  e.stopPropagation();
+function toggleLock(key) {
   lockedKeys.has(key) ? lockedKeys.delete(key) : lockedKeys.add(key);
   renderBunting();
 }
@@ -651,7 +648,18 @@ function renderBunting() {
       const item = document.createElement('div');
       item.className = 'flag-item' + (isLocked?' locked':'');
       item.style.cssText = 'position:relative;';
-      item.onclick = () => { if (!isLocked) cycleFabric(token.key, item); };
+      item.title = isLocked ? 'double-tap to unlock' : 'tap to cycle · double-tap to lock';
+      item._lastTap = 0;
+      item.onclick = function() {
+        var now = Date.now();
+        var gap = now - (item._lastTap || 0);
+        item._lastTap = now;
+        if (gap < 350) {
+          toggleLock(token.key);
+        } else {
+          if (!isLocked) cycleFabric(token.key, item);
+        }
+      };
 
       const str = document.createElement('div');
       str.className='flag-string'; str.style.height=STR_H+'px';
@@ -659,14 +667,7 @@ function renderBunting() {
       const flag = document.createElement('div');
       flag.className='letter-flag'; flag.style.width=FLAG_W+'px'; flag.style.height=FLAG_H+'px'; flag.style.overflow='visible';
 
-      // Visible lock button
-      const lockBtn = document.createElement('button');
-      lockBtn.className = 'lock-btn';
-      lockBtn.title = isLocked ? 'unlock' : 'lock this fabric';
-      lockBtn.innerHTML = isLocked ? '🔒' : '🔓';
-      lockBtn.onclick = e => toggleLock(token.key, e);
-
-      item.appendChild(str); item.appendChild(flag); item.appendChild(lockBtn);
+      item.appendChild(str); item.appendChild(flag);
       rowDiv.appendChild(item);
       drawLetterFlag(flag, token.char, fabric?fabric.public_url:null);
     });
