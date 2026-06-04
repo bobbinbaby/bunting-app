@@ -13,11 +13,12 @@ body { font-family:'Poppins',sans-serif; background:var(--bg); min-height:100vh;
 body::before { content:''; position:fixed; inset:0; pointer-events:none;
   background-image: repeating-linear-gradient(0deg,transparent,transparent 38px,rgba(244,168,204,0.13) 38px,rgba(244,168,204,0.13) 76px),
   repeating-linear-gradient(90deg,transparent,transparent 38px,rgba(244,168,204,0.13) 38px,rgba(244,168,204,0.13) 76px); }
-.nav { background:#fff; border-bottom:2px solid var(--pk-l); padding:14px 24px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; box-shadow:0 2px 12px var(--sh); }
+.nav { background:#fff; border-bottom:2px solid var(--pk-l); padding:12px 16px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; box-shadow:0 2px 12px var(--sh); gap:8px; flex-wrap:wrap; }
+.nav-right { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
 .nav-logo { font-size:18px; font-weight:900; color:var(--pk-d); letter-spacing:-0.5px; }
 .nav-logo em { font-style:normal; color:var(--yw-d); -webkit-text-stroke:1px var(--pk-d); }
 .nav-right { display:flex; align-items:center; gap:12px; }
-.nav-email { font-size:12px; color:var(--pk-d); opacity:.6; }
+.nav-email { font-size:11px; color:var(--pk-d); opacity:.6; max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .btn { font-family:'Poppins',sans-serif; font-size:12px; font-weight:700; padding:8px 16px; border:none; border-radius:50px; cursor:pointer; transition:all .16s; display:inline-flex; align-items:center; gap:5px; white-space:nowrap; }
 .btn:active { transform:scale(.97); }
 .btn-pink { background:var(--pk-d); color:#fff; }
