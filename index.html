@@ -58,6 +58,10 @@ input:focus { border-color:var(--pk-d); }
       <input type="email" id="suEmail" placeholder="you@yourbusiness.com">
     </div>
     <div class="field">
+      <label>password</label>
+      <input type="password" id="suPassword" placeholder="at least 8 characters">
+    </div>
+    <div class="field">
       <label>business name</label>
       <input type="text" id="suBusiness" placeholder="Bobbin Baby">
     </div>
@@ -78,7 +82,14 @@ input:focus { border-color:var(--pk-d); }
       <label>email</label>
       <input type="email" id="liEmail" placeholder="you@yourbusiness.com">
     </div>
-    <button class="btn" id="liBtn" onclick="logIn()">send magic link →</button>
+    <div class="field">
+      <label>password</label>
+      <input type="password" id="liPassword" placeholder="your password" onkeydown="if(event.key==='Enter')logIn()">
+    </div>
+    <button class="btn" id="liBtn" onclick="logIn()">log in →</button>
+    <div style="text-align:center;margin-top:10px;">
+      <a href="#" onclick="resetPassword()" style="font-size:12px;color:var(--pk-d);opacity:.6;text-decoration:none;">forgot password?</a>
+    </div>
     <div class="msg" id="liMsg"></div>
   </div>
 
@@ -107,39 +118,47 @@ function sanitiseSlug(el) { el.value = el.value.toLowerCase().replace(/[^a-z0-9-
 
 async function signUp() {
   const email    = document.getElementById('suEmail').value.trim();
+  const password = document.getElementById('suPassword').value;
   const business = document.getElementById('suBusiness').value.trim();
   const slug     = document.getElementById('suSlug').value.trim();
   const btn      = document.getElementById('suBtn');
   const msg      = document.getElementById('suMsg');
   msg.className  = 'msg';
-  if (!email || !business || !slug) return showMsg(msg, 'error', 'please fill in all fields');
-  if (slug.length < 3) return showMsg(msg, 'error', 'slug must be at least 3 characters');
+  if (!email || !password || !business || !slug) return showMsg(msg, 'error', 'please fill in all fields');
+  if (password.length < 8) return showMsg(msg, 'error', 'password must be at least 8 characters');
+  if (slug.length < 3) return showMsg(msg, 'error', 'link must be at least 3 characters');
   btn.disabled = true; btn.textContent = 'checking...';
   const { data: existing } = await sb.from('makers').select('slug').eq('slug', slug).maybeSingle();
   if (existing) { btn.disabled=false; btn.textContent='create my account →'; return showMsg(msg, 'error', 'that link is already taken — try another'); }
-  btn.textContent = 'sending magic link...';
-  const { error } = await sb.auth.signUp({
-    email,
-    password: crypto.randomUUID(),
-    options: { emailRedirectTo: window.location.origin + '/dashboard', data: { business_name: business, slug } }
-  });
+  btn.textContent = 'creating account...';
+  const { data, error } = await sb.auth.signUp({ email, password, options: { data: { business_name: business, slug } } });
   if (error) { btn.disabled=false; btn.textContent='create my account →'; return showMsg(msg, 'error', error.message); }
   localStorage.setItem('pending_slug', slug);
   localStorage.setItem('pending_business', business);
-  showMsg(msg, 'success', '✓ check your email for a magic link to confirm your account!');
-  btn.disabled=false; btn.textContent='create my account →';
+  // Sign in immediately after signup
+  const { error: signInErr } = await sb.auth.signInWithPassword({ email, password });
+  if (signInErr) { btn.disabled=false; btn.textContent='create my account →'; return showMsg(msg, 'error', signInErr.message); }
+  window.location.href = '/dashboard';
 }
 
 async function logIn() {
+  const email    = document.getElementById('liEmail').value.trim();
+  const password = document.getElementById('liPassword').value;
+  const btn      = document.getElementById('liBtn');
+  const msg      = document.getElementById('liMsg');
+  if (!email || !password) return showMsg(msg, 'error', 'please enter your email and password');
+  btn.disabled=true; btn.textContent='logging in...';
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) { btn.disabled=false; btn.textContent='log in →'; return showMsg(msg, 'error', error.message); }
+  window.location.href = '/dashboard';
+}
+
+async function resetPassword() {
   const email = document.getElementById('liEmail').value.trim();
-  const btn   = document.getElementById('liBtn');
-  const msg   = document.getElementById('liMsg');
-  if (!email) return showMsg(msg, 'error', 'please enter your email');
-  btn.disabled=true; btn.textContent='sending...';
-  const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.origin + '/dashboard' } });
-  if (error) { btn.disabled=false; btn.textContent='send magic link →'; return showMsg(msg, 'error', error.message); }
-  showMsg(msg, 'success', '✓ magic link sent — check your email!');
-  btn.disabled=false; btn.textContent='send magic link →';
+  if (!email) return alert('enter your email address first');
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/dashboard' });
+  if (error) return alert(error.message);
+  alert('password reset email sent — check your inbox!');
 }
 
 function promptCustomer() {
