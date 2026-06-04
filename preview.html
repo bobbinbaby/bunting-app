@@ -372,7 +372,7 @@ function toggleFabric(id) {
   else { selectedIds.add(id); }
 
   // Update only the single chip that was tapped — no full re-render
-  const chip = document.querySelector('.fabric-chip[data-id="' + id + '"]');
+  const chip = document.querySelector('.fabric-chip[data-id="' + String(id) + '"]');
   if (chip) chip.className = 'fabric-chip ' + (selectedIds.has(id) ? 'selected' : 'deselected');
 
   renderSelectedTray();
@@ -413,16 +413,60 @@ function renderFabricPicker() {
   const visible = activeFilters.size > 0
     ? allFabrics.filter(f => [...activeFilters].every(t => (f.tags||[]).includes(t)))
     : allFabrics;
-  document.getElementById('fabricsGrid').innerHTML = visible.map(f => {
+  const grid = document.getElementById('fabricsGrid');
+
+  // Remove chips no longer in visible set
+  const visibleIds = new Set(visible.map(f => String(f.id)));
+  grid.querySelectorAll('.fabric-chip[data-id]').forEach(el => {
+    if (!visibleIds.has(el.dataset.id)) el.remove();
+  });
+
+  visible.forEach((f, i) => {
     const isSel = selectedIds.has(f.id);
-    return '<div class="fabric-chip ' + (isSel?'selected':'deselected') + '" onclick="toggleFabric(\'' + f.id + '\')">'
-      + '<div class="fabric-thumb-wrap">'
-      + '<div class="fabric-thumb"><img src="' + f.public_url + '" alt="' + esc(f.name) + '" loading="lazy"></div>'
-      + '<div class="chip-check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>'
-      + '</div>'
-      + '<span class="chip-name">' + esc(f.name) + '</span>'
-      + '</div>';
-  }).join('');
+    const sid = String(f.id);
+    let chip = grid.querySelector('.fabric-chip[data-id="' + sid + '"]');
+    if (chip) {
+      // Already exists — just update class, never touch the img
+      chip.className = 'fabric-chip ' + (isSel ? 'selected' : 'deselected');
+    } else {
+      // Build new chip
+      chip = document.createElement('div');
+      chip.className = 'fabric-chip ' + (isSel ? 'selected' : 'deselected');
+      chip.setAttribute('data-id', sid);
+      chip.onclick = function() { toggleFabric(f.id); };
+
+      var wrap = document.createElement('div');
+      wrap.className = 'fabric-thumb-wrap';
+
+      var thumb = document.createElement('div');
+      thumb.className = 'fabric-thumb';
+
+      var img = document.createElement('img');
+      img.src = f.public_url;
+      img.alt = f.name;
+      img.loading = 'eager';
+      img.width = 62;
+      img.height = 62;
+
+      var check = document.createElement('div');
+      check.className = 'chip-check';
+      check.innerHTML = '<svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>';
+
+      thumb.appendChild(img);
+      wrap.appendChild(thumb);
+      wrap.appendChild(check);
+
+      var name = document.createElement('span');
+      name.className = 'chip-name';
+      name.textContent = f.name;
+
+      chip.appendChild(wrap);
+      chip.appendChild(name);
+
+      var existing = grid.querySelectorAll('.fabric-chip[data-id]');
+      grid.insertBefore(chip, existing[i] || null);
+    }
+  });
 }
 
 // ── TAG FILTER ────────────────────────────────────────────
