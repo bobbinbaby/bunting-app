@@ -228,7 +228,7 @@ input[type=text]:focus { border-color:var(--pk-d); }
           </div>
         </div>
       </div>
-      <p style="font-size:10px;color:var(--pk-d);opacity:.4;text-align:center;margin-top:12px;">tap a flag to cycle fabric &nbsp;·&nbsp; double-tap to lock it in place</p>
+      <p style="font-size:10px;color:var(--pk-d);opacity:.4;text-align:center;margin-top:12px;">tap to cycle fabric &nbsp;·&nbsp; hold to lock &nbsp;·&nbsp; tap lock to unlock</p>
     </div>
 
   </div>
@@ -648,16 +648,33 @@ function renderBunting() {
       const item = document.createElement('div');
       item.className = 'flag-item' + (isLocked?' locked':'');
       item.style.cssText = 'position:relative;';
-      item.title = isLocked ? 'double-tap to unlock' : 'tap to cycle · double-tap to lock';
-      item._lastTap = 0;
-      item.onclick = function() {
-        var now = Date.now();
-        var gap = now - (item._lastTap || 0);
-        item._lastTap = now;
-        if (gap < 350) {
+      item.title = isLocked ? 'tap to unlock' : 'tap to cycle · hold to lock';
+      // Long press to lock, tap to cycle
+      var pressTimer = null;
+      var didLongPress = false;
+      item.addEventListener('touchstart', function(e) {
+        didLongPress = false;
+        pressTimer = setTimeout(function() {
+          didLongPress = true;
           toggleLock(token.key);
-        } else {
-          if (!isLocked) cycleFabric(token.key, item);
+          // Haptic feedback if available
+          if (navigator.vibrate) navigator.vibrate(40);
+        }, 500);
+      }, { passive: true });
+      item.addEventListener('touchend', function(e) {
+        clearTimeout(pressTimer);
+        if (didLongPress) { e.preventDefault(); return; }
+        if (!isLocked) cycleFabric(token.key, item);
+      });
+      item.addEventListener('touchmove', function() {
+        clearTimeout(pressTimer);
+      }, { passive: true });
+      // Desktop fallback — click to cycle, shift+click to lock
+      item.onclick = function(e) {
+        if (e.type === 'click' && e.sourceCapabilities && !e.sourceCapabilities.firesTouchEvents) {
+          if (e.shiftKey) { toggleLock(token.key); }
+          else if (!isLocked) { cycleFabric(token.key, item); }
+          else { toggleLock(token.key); }
         }
       };
 
