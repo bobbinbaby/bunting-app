@@ -747,11 +747,11 @@ function drawLetterFlag(container, letter, fabricUrl) {
 function downloadBunting() {
   const tokens=getTokens(); if(!tokens.length) return;
   const btn=document.getElementById('downloadBtn'); btn.textContent='preparing...'; btn.disabled=true;
-  const GAP=1,PAD=20,FW=FLAG_W,FH=FLAG_H,SP_W=SPACE_W,SH=STR_H;
+  const GAP=1, PAD=20, FW=FLAG_W, FH=FLAG_H, CW=CANVAS_W, CH=CANVAS_H, SP_W=SPACE_W, SH=STR_H;
 
-  // Build rows same as render
+  // Build rows same as render (6 letters per row)
   const rows=[]; let row=[]; let lc=0;
-  tokens.forEach(t=>{ row.push(t); if(t.type==='letter') lc++; if(lc===9){rows.push(row);row=[];lc=0;} });
+  tokens.forEach(t=>{ row.push(t); if(t.type==='letter') lc++; if(lc===6){rows.push(row);row=[];lc=0;} });
   if(row.length) rows.push(row);
 
   const rowW = rows.reduce((max,r)=>{
@@ -759,10 +759,11 @@ function downloadBunting() {
     return Math.max(max,w);
   },0);
   const totalW=rowW;
-  const totalH=(FH+SH)*rows.length+PAD*2+(rows.length-1)*PAD;
+  const totalH=(CH+SH)*rows.length+PAD*2+(rows.length-1)*PAD;
 
   const letterCount=tokens.filter(t=>t.type==='letter').length;
   function allReady(){return document.querySelectorAll('.letter-flag canvas').length===letterCount;}
+
   function doDownload(){
     const out=document.createElement('canvas'); out.width=totalW*2; out.height=totalH*2;
     const ctx=out.getContext('2d'); ctx.scale(2,2);
@@ -772,17 +773,24 @@ function downloadBunting() {
     const lcs=document.querySelectorAll('.letter-flag canvas');
 
     rows.forEach((rowTokens,ri)=>{
-      const rowY=PAD+ri*(FH+SH+PAD);
+      const rowY=PAD+ri*(CH+SH+PAD);
       // String line
       ctx.strokeStyle='#c084a8'; ctx.lineWidth=1.5;
       ctx.beginPath(); ctx.moveTo(PAD,rowY+SH/2); ctx.lineTo(totalW-PAD,rowY+SH/2); ctx.stroke();
       let x=PAD;
       rowTokens.forEach(t=>{
         if(t.type==='space'){x+=SP_W+GAP;return;}
-        const fc=lcs[canvasIdx++]; const cx=x+FW/2;
+        const fc=lcs[canvasIdx++];
+        const cx=x+FW/2;
+        // Drop string
         ctx.strokeStyle='#c084a8'; ctx.lineWidth=1.5;
         ctx.beginPath(); ctx.moveTo(cx,rowY+SH/2); ctx.lineTo(cx,rowY+SH); ctx.stroke();
-        if(fc) ctx.drawImage(fc,x,rowY+SH,FW,FH);
+        if(fc){
+          // Draw canvas at its natural size, centred over the FLAG_W slot
+          // This prevents squishing wide letters (W, M etc.)
+          const drawX = x + (FW - CW) / 2;
+          ctx.drawImage(fc, drawX, rowY+SH, CW, CH);
+        }
         x+=FW+GAP;
       });
     });
