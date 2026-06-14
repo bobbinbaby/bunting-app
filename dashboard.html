@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard — Bunting Previewer</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&family=Passion+One:wght@900&family=Cherry+Bomb+One&family=Lilita+One&family=Nunito:wght@900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&family=Poppins:wght@900&family=Passion+One:wght@900&family=Cherry+Bomb+One&family=Lilita+One&family=Nunito:wght@900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 <style>
 * { box-sizing:border-box; margin:0; padding:0; }
@@ -46,6 +46,7 @@ label { display:block; font-size:11px; font-weight:700; color:var(--pk-d); text-
 .font-preview.cherry   { font-family:'Cherry Bomb One', cursive; }
 .font-preview.lilita   { font-family:'Lilita One', sans-serif; }
 .font-preview.nunito   { font-family:'Nunito', sans-serif; font-weight:900; }
+.font-preview.poppins  { font-family:'Poppins', sans-serif; font-weight:900; }
 .font-label { font-size:10px; font-weight:700; color:var(--pk-d); opacity:.6; text-transform:uppercase; letter-spacing:.5px; text-align:center; }
 .font-saving { font-size:11px; color:var(--pk-d); opacity:.5; margin-top:8px; display:none; }
 
@@ -164,6 +165,10 @@ label { display:block; font-size:11px; font-weight:700; color:var(--pk-d); text-
         <div class="font-option" id="font-nunito" onclick="setFont('nunito')">
           <span class="font-preview nunito">Aa</span>
           <span class="font-label">Nunito Black</span>
+        </div>
+        <div class="font-option" id="font-poppins" onclick="setFont('poppins')">
+          <span class="font-preview poppins">Aa</span>
+          <span class="font-label">Poppins</span>
         </div>
       </div>
       <div class="font-saving" id="fontSaving">saving...</div>
