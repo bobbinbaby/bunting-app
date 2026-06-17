@@ -29,8 +29,7 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none;
 .business-name.cherry  { font-family:'Cherry Bomb One',cursive; }
 .business-name.lilita  { font-family:'Lilita One',sans-serif; }
 .business-name.nunito  { font-family:'Nunito',sans-serif; font-weight:900; }
-
- .header-sub { font-size:13px; color:var(--pk-d); opacity:.6; }
+.header-sub { font-size:13px; color:var(--pk-d); opacity:.6; }
 
 /* STEPS */
 .steps { display:flex; align-items:center; justify-content:center; gap:0; margin-bottom:22px; flex-wrap:wrap; }
@@ -124,11 +123,11 @@ input[type=text]:focus { border-color:var(--pk-d); }
 .flag-item.locked { cursor:default; }
 .flag-string { width:2px; background:#c084a8; }
 .letter-flag { position:relative; flex-shrink:0; overflow:visible; }
-.flag-item.locked::before { content:'ð"; position:absolute; bottom:2px; right:2px; font-size:11px; pointer-events:none; z-index:5; }
+.flag-item.locked::before { content:'ð'; position:absolute; bottom:2px; right:2px; font-size:11px; pointer-events:none; z-index:5; }
 .flag-space { display:flex; flex-direction:column; align-items:center; flex-shrink:0; }
 
 /* Flash animation */
-@keyframes flagFlash { 0%{opacity:1} 30%{opacity:.4} 100%; //{opacity:1} }
+@keyframes flagFlash { 0%{opacity:1} 30%{opacity:.4} 100%{opacity:1} }
 .flag-item.cycling .letter-flag { animation:flagFlash .25s ease; }
 
 .empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; color:var(--pk-m); font-size:13px; padding:30px 20px; text-align:center; min-height:170px; width:100%; }
@@ -173,7 +172,8 @@ input[type=text]:focus { border-color:var(--pk-d); }
       <div class="step-arrow">âº</div>
       <div class="step" id="step2">
         <div class="step-num">2</div>
-        <span>type your name</span> </div>
+        <span>type your name</span>
+      </div>
       <div class="step-arrow">âº</div>
       <div class="step" id="step3">
         <div class="step-num">3</div>
@@ -273,7 +273,7 @@ const FONTS = {
   poppins: { family:"'Poppins',sans-serif",        weight:'900', scale:1.54 },
 };
 
-const SHAMES = [
+const SHAPES = [
   { id: null,        label: 'none',      emoji: 'â' },
   { id: 'heart',     label: 'heart',     emoji: 'â¥' },
   { id: 'star',      label: 'star',      emoji: 'â' },
@@ -364,7 +364,7 @@ function setLoading(msg) {
   if (el) el.textContent = msg;
 }
 
-// ââ STEPS INDICATOR ââââââââââââââââââââââââââââââââââââââ
+// ââ STEPS INDICATOR âââââââââââââââââââââââââââââââââââââââ
 function updateSteps() {
   const hasFabrics = selectedIds.size > 0;
   const hasContent = getTokens().some(t => t.type !== 'space');
