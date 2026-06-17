@@ -256,6 +256,8 @@ let letterFabricMap = {};
 let lockedKeys = new Set();
 let fontsReady = false;
 let currentFont = 'passion';
+let LETTER_WIDTHS = {};
+function getLetterW(ch) { return LETTER_WIDTHS[ch] || LETTER_WIDTHS[ch.toUpperCase()] || CANVAS_W; }
 let FLAG_W=100, FLAG_H=100, CANVAS_W=100, CANVAS_H=100, SPACE_W=36, STR_H=18, FONT_SIZE=120;
 
 // ── INIT ──────────────────────────────────────────────────
@@ -352,21 +354,20 @@ function calcFlagSize() {
 const probe = document.createElement('canvas');
 probe.width = FONT_SIZE * 3; probe.height = FONT_SIZE * 3;
 const pctx = probe.getContext('2d');
-// Shrink font until the widest letter fits within FLAG_W (prevents overlap)
-let maxW = FLAG_W + 1;
-while (FONT_SIZE > 10 && maxW > FLAG_W) {
 pctx.font = f.weight + ' ' + FONT_SIZE + 'px ' + f.family;
-maxW = 0;
-'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(ch => { const w = pctx.measureText(ch).width; if (w > maxW) maxW = w; });
-if (maxW > FLAG_W) FONT_SIZE = Math.floor(FONT_SIZE * 0.96);
-}
 const m = pctx.measureText('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');
 const ascent = m.actualBoundingBoxAscent > 0 ? m.actualBoundingBoxAscent : FONT_SIZE * 0.78;
 const descent = m.actualBoundingBoxDescent > 0 ? m.actualBoundingBoxDescent : FONT_SIZE * 0.22;
 const pad = Math.round(FONT_SIZE * 0.08);
 CANVAS_H = Math.ceil(ascent + descent + pad * 2);
 FLAG_H = CANVAS_H;
-CANVAS_W = FLAG_W;
+// Per-letter widths: each flag is exactly as wide as its letter (no overlap, no wasted space)
+const sidePad = Math.round(FONT_SIZE * 0.06);
+LETTER_WIDTHS = {};
+'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.split('').forEach(ch => {
+LETTER_WIDTHS[ch] = Math.ceil(pctx.measureText(ch).width) + sidePad * 2;
+});
+CANVAS_W = Math.max(...Object.values(LETTER_WIDTHS));
 }
 window.addEventListener('resize', () => { calcFlagSize(); renderBunting(); });
 
@@ -688,7 +689,7 @@ function renderBunting() {
       str.className='flag-string'; str.style.height=STR_H+'px';
 
       const flag = document.createElement('div');
-      flag.className='letter-flag'; flag.style.width=FLAG_W+'px'; flag.style.height=FLAG_H+'px'; flag.style.overflow='visible';
+      flag.className='letter-flag'; flag.style.width=getLetterW(token.char)+'px'; flag.style.height=FLAG_H+'px'; flag.style.overflow='visible';
 
       item.appendChild(str); item.appendChild(flag);
       rowDiv.appendChild(item);
@@ -720,7 +721,7 @@ function cycleFabric(key, itemEl) {
 
 // ── CANVAS ────────────────────────────────────────────────
 function drawLetterFlag(container, letter, fabricUrl) {
-  const W=CANVAS_W, H=CANVAS_H, S=Math.min(window.devicePixelRatio || 2, 3);
+  const W=getLetterW(letter), H=CANVAS_H, S=Math.min(window.devicePixelRatio || 2, 3);
   const canvas = document.createElement('canvas');
   canvas.width=W*S; canvas.height=H*S;
   canvas.style.width=W+'px'; canvas.style.height=H+'px';
@@ -761,7 +762,7 @@ function downloadBunting() {
   if(row.length) rows.push(row);
 
   const rowW = rows.reduce((max,r)=>{
-    let w=PAD*2; r.forEach(t=>{w+=(t.type==='space'?SP_W:FW)+GAP;}); w-=GAP;
+    let w=PAD*2; r.forEach(t=>{w+=(t.type==='space'?SP_W:getLetterW(t.char))+GAP;}); w-=GAP;
     return Math.max(max,w);
   },0);
   const totalW=rowW;
@@ -787,17 +788,17 @@ function downloadBunting() {
       rowTokens.forEach(t=>{
         if(t.type==='space'){x+=SP_W+GAP;return;}
         const fc=lcs[canvasIdx++];
-        const cx=x+FW/2;
+        const cw=fc?parseInt(fc.style.width):FW;
+const cx=x+cw/2;
         // Drop string
         ctx.strokeStyle='#c084a8'; ctx.lineWidth=1.5;
         ctx.beginPath(); ctx.moveTo(cx,rowY+SH/2); ctx.lineTo(cx,rowY+SH); ctx.stroke();
         if(fc){
           // Draw canvas at its natural size, centred over the FLAG_W slot
           // This prevents squishing wide letters (W, M etc.)
-          const drawX = x + (FW - CW) / 2;
-          ctx.drawImage(fc, drawX, rowY+SH, CW, CH);
+          ctx.drawImage(fc, x, rowY+SH, cw, CH);
         }
-        x+=FW+GAP;
+        x+=cw+GAP;
       });
     });
 
