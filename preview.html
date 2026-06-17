@@ -99,14 +99,6 @@ input[type=text]:focus { border-color:var(--pk-d); }
 .fchip .chip-count { opacity:.6; font-size:10px; margin-left:2px; }
 .fchip.sel .chip-count { opacity:.8; }
 
-/* SHAPE PICKER */
-.shape-row { display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; }
-.shape-col { flex:1; min-width:130px; }
-.shape-col-label { font-size:10px; font-weight:700; color:var(--pk-d); opacity:.5; text-transform:uppercase; letter-spacing:.6px; margin-bottom:6px; }
-.shape-picker { display:flex; gap:6px; flex-wrap:wrap; }
-.shape-opt { font-family:'Poppins',sans-serif; padding:7px 9px; border:2.5px solid var(--pk-l); border-radius:12px; cursor:pointer; background:#fff; color:var(--pk-d); transition:all .15s; min-width:40px; text-align:center; line-height:1; font-size:15px; }
-.shape-opt:hover { border-color:var(--pk-d); background:var(--pk-l); }
-.shape-opt.sel { border-color:var(--pk-d); background:var(--pk-d); color:#fff; }
 
 /* PREVIEW */
 .preview-area { background:#fff; border-radius:20px; padding:18px 14px 28px; box-shadow:0 4px 20px var(--sh); border:2px solid var(--pk-l); min-height:200px; position:relative; }
@@ -123,7 +115,7 @@ input[type=text]:focus { border-color:var(--pk-d); }
 .flag-item.locked { cursor:default; }
 .flag-string { width:2px; background:#c084a8; }
 .letter-flag { position:relative; flex-shrink:0; overflow:visible; }
-.flag-item.locked::before { content:'ð'; position:absolute; bottom:2px; right:2px; font-size:11px; pointer-events:none; z-index:5; }
+.flag-item.locked::before { content:'🔒'; position:absolute; bottom:2px; right:2px; font-size:11px; pointer-events:none; z-index:5; }
 .flag-space { display:flex; flex-direction:column; align-items:center; flex-shrink:0; }
 
 /* Flash animation */
@@ -145,11 +137,11 @@ input[type=text]:focus { border-color:var(--pk-d); }
 <body>
 
 <div id="loadingScreen" class="full-screen">
-  <div style="font-size:28px;">ð§µ</div>
+  <div style="font-size:28px;">🧵</div>
   <div id="loadingMsg">loading...</div>
 </div>
 <div id="errorScreen" class="full-screen" style="display:none">
-  <div style="font-size:36px;">ð¤·</div>
+  <div style="font-size:36px;">🤷</div>
   <div id="errorMsg" style="max-width:320px;text-align:center;word-break:break-word;">maker not found</div>
   <a href="/" style="color:var(--pk-d);font-weight:700;margin-top:8px;">go home</a>
 </div>
@@ -160,7 +152,7 @@ input[type=text]:focus { border-color:var(--pk-d); }
     <!-- HEADER -->
     <div class="header">
       <div class="business-name" id="businessName"></div>
-      <div class="header-sub">design your own bunting â¨</div>
+      <div class="header-sub">design your own bunting ✨</div>
     </div>
 
     <!-- STEPS -->
@@ -169,12 +161,12 @@ input[type=text]:focus { border-color:var(--pk-d); }
         <div class="step-num">1</div>
         <span>choose colours</span>
       </div>
-      <div class="step-arrow">âº</div>
+      <div class="step-arrow">›</div>
       <div class="step" id="step2">
         <div class="step-num">2</div>
         <span>type your name</span>
       </div>
-      <div class="step-arrow">âº</div>
+      <div class="step-arrow">›</div>
       <div class="step" id="step3">
         <div class="step-num">3</div>
         <span>download</span>
@@ -196,7 +188,7 @@ input[type=text]:focus { border-color:var(--pk-d); }
         <div style="font-size:10px;font-weight:700;color:var(--pk-d);text-transform:uppercase;letter-spacing:.6px;opacity:.6;margin-bottom:6px;">selected <span id="selectedCount"></span></div>
         <div class="selected-tray-wrap" id="selectedTrayWrap">
           <div class="selected-tray" id="selectedTray">
-            <span style="font-size:11px;color:var(--pk-d);opacity:.4;font-style:italic;">none selected yet â tap a swatch above</span>
+            <span style="font-size:11px;color:var(--pk-d);opacity:.4;font-style:italic;">none selected yet — tap a swatch above</span>
           </div>
         </div>
       </div>
@@ -214,20 +206,6 @@ input[type=text]:focus { border-color:var(--pk-d); }
         <input type="text" class="letter-input" id="letterInput" placeholder="e.g. MAYA" maxlength="30" oninput="onLetterInput()">
       </div>
 
-      <!-- SHAPE DECORATIONS -->
-      <div style="border-top:1.5px solid var(--pk-l);padding-top:14px;margin-bottom:14px;">
-        <div style="font-size:10px;font-weight:700;color:var(--pk-d);text-transform:uppercase;letter-spacing:.6px;opacity:.6;margin-bottom:10px;">add a decoration</div>
-        <div class="shape-row">
-          <div class="shape-col">
-            <div class="shape-col-label">start</div>
-            <div class="shape-picker" id="startShapePicker"></div>
-          </div>
-          <div class="shape-col">
-            <div class="shape-col-label">end</div>
-            <div class="shape-picker" id="endShapePicker"></div>
-          </div>
-        </div>
-      </div>
 
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
         <button class="btn btn-yellow" onclick="randomiseFabrics()">&#x2684; randomise</button>
@@ -252,7 +230,7 @@ input[type=text]:focus { border-color:var(--pk-d); }
           </div>
         </div>
       </div>
-      <p style="font-size:10px;color:var(--pk-d);opacity:.4;text-align:center;margin-top:12px;">tap to cycle fabric &nbsp;Â·&nbsp; hold to lock &nbsp;Â·&nbsp; tap lock to unlock</p>
+      <p style="font-size:10px;color:var(--pk-d);opacity:.4;text-align:center;margin-top:12px;">tap to cycle fabric &nbsp;·&nbsp; hold to lock &nbsp;·&nbsp; tap lock to unlock</p>
     </div>
 
   </div>
@@ -273,13 +251,6 @@ const FONTS = {
   poppins: { family:"'Poppins',sans-serif",        weight:'900', scale:1.54 },
 };
 
-const SHAPES = [
-  { id: null,        label: 'none',      emoji: 'â' },
-  { id: 'heart',     label: 'heart',     emoji: 'â¥' },
-  { id: 'star',      label: 'star',      emoji: 'â' },
-  { id: 'butterfly', label: 'butterfly', emoji: 'ð¦' },
-  { id: 'bow',       label: 'bow',       emoji: 'ð' },
-];
 
 let allFabrics = [];
 let selectedIds = new Set();
@@ -288,13 +259,11 @@ let letterFabricMap = {};
 let lockedKeys = new Set();
 let fontsReady = false;
 let currentFont = 'passion';
-let startShape = null;
-let endShape = null;
 let LETTER_WIDTHS = {};
 function getLetterW(ch) { return LETTER_WIDTHS[ch] || LETTER_WIDTHS[ch.toUpperCase()] || CANVAS_W; }
 let FLAG_W=100, FLAG_H=100, CANVAS_W=100, CANVAS_H=100, SPACE_W=36, STR_H=18, FONT_SIZE=120;
 
-// ââ INIT ââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── INIT ──────────────────────────────────────────────────
 async function init() {
   setLoading('connecting...');
   try {
@@ -310,9 +279,9 @@ async function init() {
       .maybeSingle();
 
     if (makerErr) { showError('could not load maker: ' + makerErr.message); return; }
-    if (!maker) { showError('"' + slug + '" not found â check the link and try again'); return; }
+    if (!maker) { showError('"' + slug + '" not found — check the link and try again'); return; }
 
-    document.title = (maker.business_name || maker.slug) + ' â Bunting Previewer';
+    document.title = (maker.business_name || maker.slug) + ' — Bunting Previewer';
     const nameEl = document.getElementById('businessName');
     nameEl.textContent = maker.business_name || maker.slug;
     currentFont = maker.font || 'passion';
@@ -330,7 +299,7 @@ async function init() {
     allFabrics = fabrics || [];
 
     if (!allFabrics.length) {
-      showError('no colours or patterns added yet â check back soon!');
+      showError('no colours or patterns added yet — check back soon!');
       return;
     }
 
@@ -339,7 +308,6 @@ async function init() {
     renderFabricPicker();
     renderFilterBar();
     renderSelectedTray();
-    renderShapePickers();
     await Promise.race([
       document.fonts.ready,
       new Promise(resolve => setTimeout(resolve, 3000))
@@ -364,16 +332,16 @@ function setLoading(msg) {
   if (el) el.textContent = msg;
 }
 
-// ââ STEPS INDICATOR âââââââââââââââââââââââââââââââââââââââ
+// ── STEPS INDICATOR ───────────────────────────────────────
 function updateSteps() {
   const hasFabrics = selectedIds.size > 0;
-  const hasContent = getTokens().some(t => t.type !== 'space');
+  const hasContent = getTokens().some(t => t.type === 'letter');
   document.getElementById('step1').classList.toggle('active', true);
   document.getElementById('step2').classList.toggle('active', hasFabrics);
   document.getElementById('step3').classList.toggle('active', hasFabrics && hasContent);
 }
 
-// ââ SIZING ââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── SIZING ────────────────────────────────────────────────
 function calcFlagSize(tokens) {
   const area = document.getElementById('previewArea'); if (!area) return;
   const innerW = area.clientWidth - 28;
@@ -387,19 +355,6 @@ function calcFlagSize(tokens) {
   const refSpaceW = Math.round(REF * 0.23);
   const letterToks = (tokens || []).filter(t => t.type === 'letter');
   const spaceToks  = (tokens || []).filter(t => t.type === 'space');
-  const shapeToks  = (tokens || []).filter(t => t.type === 'shape');
-
-  let refW = spaceToks.length * refSpaceW;
-  letterToks.forEach(t => { refW += pctx.measureText(t.char).width + refSidePad * 2; });
-
-  // Estimate shape width at REF scale: shapes are square (width â CANVAS_H at that size)
-  if (shapeToks.length > 0) {
-    const mAll = pctx.measureText('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');
-    const rA = mAll.actualBoundingBoxAscent  > 0 ? mAll.actualBoundingBoxAscent  : REF * 0.78;
-    const rD = mAll.actualBoundingBoxDescent > 0 ? mAll.actualBoundingBoxDescent : REF * 0.22;
-    const refShapeW = Math.ceil(rA + rD + Math.round(REF * 0.08) * 2);
-    refW += shapeToks.length * refShapeW;
-  }
 
   let targetFont;
   if (refW === 0) {
@@ -429,7 +384,7 @@ function calcFlagSize(tokens) {
 }
 window.addEventListener('resize', () => { calcFlagSize(getTokens()); renderBunting(); });
 
-// ââ FABRIC PICKER âââââââââââââââââââââââââââââââââââââââââ
+// ── FABRIC PICKER ─────────────────────────────────────────
 function toggleFabric(id) {
   if (selectedIds.has(id)) { selectedIds.delete(id); }
   else { selectedIds.add(id); }
@@ -443,8 +398,7 @@ function toggleFabric(id) {
   const pool = getPool();
   if (pool.length > 0) {
     getTokens().forEach(t => {
-      if ((t.type !== 'letter' && t.type !== 'shape') || lockedKeys.has(t.key)) return;
-      if (t.type === 'shape' && t.shape === 'bow') return;
+      if (t.type !== 'letter' || lockedKeys.has(t.key)) return;
       if (!selectedIds.has(letterFabricMap[t.key])) {
         const fallback = pool[Math.floor(Math.random() * pool.length)];
         if (fallback) letterFabricMap[t.key] = fallback.id;
@@ -529,7 +483,7 @@ function renderFabricPicker() {
   });
 }
 
-// ââ TAG FILTER ââââââââââââââââââââââââââââââââââââââââââââ
+// ── TAG FILTER ────────────────────────────────────────────
 function getAllTags() {
   const counts = {};
   allFabrics.forEach(f => (f.tags||[]).forEach(t => { counts[t] = (counts[t]||0)+1; }));
@@ -570,7 +524,7 @@ function renderSelectedTray() {
   if (!selected.length) {
     if (countEl) countEl.textContent = '';
     trayWrap.style.borderColor = 'var(--pk-l)';
-    tray.innerHTML = '<span style="font-size:11px;color:var(--pk-d);opacity:.4;font-style:italic;">none selected yet â tap a swatch above</span>';
+    tray.innerHTML = '<span style="font-size:11px;color:var(--pk-d);opacity:.4;font-style:italic;">none selected yet — tap a swatch above</span>';
     return;
   }
   trayWrap.style.borderColor = 'var(--pk-d)';
@@ -598,71 +552,10 @@ function renderSelectedTray() {
   });
 }
 
-// ââ SHAPE PICKER ââââââââââââââââââââââââââââââââââââââââââ
-function setShape(pos, shapeId) {
-  if (pos === 'start') startShape = shapeId;
-  else endShape = shapeId;
-  renderShapePickers();
-  renderBunting();
-}
-
-function renderShapePickers() {
-  ['start', 'end'].forEach(function(pos) {
-    var el = document.getElementById(pos + 'ShapePicker');
-    if (!el) return;
-    var cur = pos === 'start' ? startShape : endShape;
-    el.innerHTML = '';
-    SHAPES.forEach(function(s) {
-      var btn = document.createElement('button');
-      btn.className = 'shape-opt' + (cur === s.id ? ' sel' : '');
-      btn.title = s.label;
-      btn.textContent = s.emoji;
-      btn.onclick = function() { setShape(pos, s.id); };
-      el.appendChild(btn);
-    });
-  });
-}
-
-// ââ LETTERS âââââââââââââââââââââââââââââââââââââââââââââââ
-function getTokens() {
-  const base = document.getElementById('letterInput').value.split('').map((ch,i) => ({
-    type: ch===' ' ? 'space' : 'letter', char: ch, key: i+':'+ch
-  }));
-  const tokens = [];
-  if (startShape) tokens.push({ type:'shape', shape:startShape, key:'shape:start' });
-  tokens.push(...base);
-  if (endShape) tokens.push({ type:'shape', shape:endShape, key:'shape:end' });
-  return tokens;
-}
-
-function onLetterInput() {
-  const tokens = getTokens();
-  const vk = new Set(tokens.map(t=>t.key));
-  Object.keys(letterFabricMap).forEach(k => { if (!vk.has(k)) delete letterFabricMap[k]; });
-  lockedKeys.forEach(k => { if (!vk.has(k)) lockedKeys.delete(k); });
-  updateSteps();
-  renderBunting();
-}
-
-function randomiseFabrics() {
-  const pool = getPool(); if (!pool.length) { renderBunting(); return; }
-  const targets = getTokens().filter(t => (t.type==='letter' || (t.type==='shape' && t.shape!=='bow')) && !lockedKeys.has(t.key));
-  if (!targets.length) { renderBunting(); return; }
-  const shuffled = [...pool].sort(() => Math.random()-0.5);
-  targets.forEach((t,i) => { letterFabricMap[t.key] = shuffled[i % shuffled.length].id; });
-  renderBunting();
-}
-
-function confirmClear() {
-  if (!document.getElementById('letterInput').value && !startShape && !endShape) return;
-  if (confirm('Clear your name and decorations?')) { clearAll(); }
-}
 
 function clearAll() {
   document.getElementById('letterInput').value='';
-  startShape = null; endShape = null;
   letterFabricMap={}; lockedKeys.clear();
-  renderShapePickers();
   updateSteps(); renderBunting();
 }
 
@@ -671,7 +564,7 @@ function toggleLock(key) {
   renderBunting();
 }
 
-// ââ RENDER BUNTING ââââââââââââââââââââââââââââââââââââââââ
+// ── RENDER BUNTING ────────────────────────────────────────
 function renderBunting() {
   if (!fontsReady) return;
   const tokens = getTokens(), pool = getPool();
@@ -697,7 +590,6 @@ function renderBunting() {
   let row = [], rowW = 0;
   tokens.forEach(token => {
     const tokW = token.type === 'space' ? SPACE_W
-               : token.type === 'shape' ? CANVAS_H
                : getLetterW(token.char);
     if (row.length > 0 && rowW + tokW > previewInnerW) { rows.push(row); row = []; rowW = 0; }
     row.push(token); rowW += tokW;
@@ -729,66 +621,6 @@ function renderBunting() {
         sp.appendChild(se); sp.appendChild(gap); rowDiv.appendChild(sp); return;
       }
 
-      // SHAPE
-      if (token.type === 'shape') {
-        const isLocked = lockedKeys.has(token.key);
-        const usesFabric = token.shape !== 'bow';
-
-        if (usesFabric && !isLocked && pool.length) {
-          const cur = allFabrics.find(f=>f.id===letterFabricMap[token.key]);
-          if (!cur || !pool.find(f=>f.id===cur.id)) {
-            const s = [...pool].sort(()=>Math.random()-.5);
-            letterFabricMap[token.key] = s[0].id;
-          }
-        }
-        const fabric = usesFabric ? (allFabrics.find(f=>f.id===letterFabricMap[token.key])||pool[0]||null) : null;
-
-        const item = document.createElement('div');
-        item.className = 'flag-item' + (isLocked?' locked':'');
-        item.style.cssText = 'position:relative;';
-
-        if (usesFabric) {
-          item.title = isLocked ? 'tap to unlock' : 'tap to cycle fabric Â· hold to lock';
-          var pressTimer = null, didLongPress = false;
-          item.addEventListener('touchstart', function() {
-            didLongPress = false;
-            pressTimer = setTimeout(function() {
-              didLongPress = true;
-              toggleLock(token.key);
-              if (navigator.vibrate) navigator.vibrate(40);
-            }, 500);
-          }, {passive:true});
-          item.addEventListener('touchend', function(e) {
-            clearTimeout(pressTimer);
-            if (didLongPress) { e.preventDefault(); return; }
-            if (!isLocked) cycleFabric(token.key, item);
-          });
-          item.addEventListener('touchmove', function() { clearTimeout(pressTimer); }, {passive:true});
-          item.onclick = function(e) {
-            if (e.type==='click' && e.sourceCapabilities && !e.sourceCapabilities.firesTouchEvents) {
-              if (e.shiftKey) { toggleLock(token.key); }
-              else if (!isLocked) { cycleFabric(token.key, item); }
-              else { toggleLock(token.key); }
-            }
-          };
-        } else {
-          item.style.cursor = 'default';
-          item.classList.remove('locked');
-        }
-
-        const str = document.createElement('div');
-        str.className = 'flag-string'; str.style.height = STR_H + 'px';
-
-        const flag = document.createElement('div');
-        flag.className = 'letter-flag';
-        flag.style.width = CANVAS_H + 'px'; flag.style.height = FLAG_H + 'px'; flag.style.overflow = 'visible';
-
-        item.appendChild(str); item.appendChild(flag);
-        rowDiv.appendChild(item);
-        drawShapeFlag(flag, token.shape, usesFabric ? (fabric?fabric.public_url:null) : null);
-        return;
-      }
-
       // LETTER
       const cur = allFabrics.find(f=>f.id===letterFabricMap[token.key]);
       const inPool = cur && pool.find(f=>f.id===cur.id);
@@ -802,7 +634,7 @@ function renderBunting() {
       const item = document.createElement('div');
       item.className = 'flag-item' + (isLocked?' locked':'');
       item.style.cssText = 'position:relative;';
-      item.title = isLocked ? 'tap to unlock' : 'tap to cycle Â· hold to lock';
+      item.title = isLocked ? 'tap to unlock' : 'tap to cycle · hold to lock';
       var pressTimer = null;
       var didLongPress = false;
       item.addEventListener('touchstart', function(e) {
@@ -861,16 +693,14 @@ function cycleFabric(key, itemEl) {
       flag.innerHTML = '';
       const tok = allDrawable[ti];
       const fab = allFabrics.find(f=>f.id===letterFabricMap[key]);
-      if (tok.type === 'shape') {
-        drawShapeFlag(flag, tok.shape, fab?fab.public_url:null);
-      } else {
+      {
         drawLetterFlag(flag, tok.char, fab?fab.public_url:null);
       }
     }
   }
 }
 
-// ââ CANVAS: LETTER FLAG âââââââââââââââââââââââââââââââââââ
+// ── CANVAS: LETTER FLAG ───────────────────────────────────
 function drawLetterFlag(container, letter, fabricUrl) {
   const W=getLetterW(letter), H=CANVAS_H, S=Math.min(window.devicePixelRatio || 2, 3);
   const canvas = document.createElement('canvas');
@@ -900,126 +730,20 @@ function drawLetterFlag(container, letter, fabricUrl) {
   else{render(null);}
 }
 
-// ââ CANVAS: SHAPE FLAG ââââââââââââââââââââââââââââââââââââ
-function drawShapeFlag(container, shape, fabricUrl) {
-  const W=CANVAS_H, H=CANVAS_H, S=Math.min(window.devicePixelRatio||2,3);
-  const canvas=document.createElement('canvas');
-  canvas.width=W*S; canvas.height=H*S;
-  canvas.style.width=W+'px'; canvas.style.height=H+'px';
-  canvas.style.position='relative'; canvas.style.left='0';
-  container.appendChild(canvas);
-  const ctx=canvas.getContext('2d'); ctx.scale(S,S);
 
-  // Draw the shape path onto any context, centered in WxH
-  function tracePath(c) {
-    const cx=W/2, cy=H/2, hw=W*0.44, hh=H*0.44;
-    c.beginPath();
-    if (shape==='heart') {
-      // Single continuous heart path: start at notch, curve left, down to point, back up right
-      c.moveTo(cx, cy-hh*0.15);
-      c.bezierCurveTo(cx,           cy-hh*0.55, cx-hw*1.1, cy-hh*0.55, cx-hw,       cy-hh*0.1);
-      c.bezierCurveTo(cx-hw*0.95,   cy+hh*0.22, cx,        cy+hh*0.55, cx,           cy+hh*0.7);
-      c.bezierCurveTo(cx,           cy+hh*0.55, cx+hw*0.95,cy+hh*0.22, cx+hw,        cy-hh*0.1);
-      c.bezierCurveTo(cx+hw*1.1,    cy-hh*0.55, cx,        cy-hh*0.55, cx,           cy-hh*0.15);
-      c.closePath();
-    } else if (shape==='star') {
-      const ro=hw*0.97, ri=ro*0.42;
-      for(let i=0;i<10;i++){
-        const a=(Math.PI*i/5)-Math.PI/2;
-        const r=i%2===0?ro:ri;
-        i===0?c.moveTo(cx+r*Math.cos(a),cy+r*Math.sin(a)):c.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));
-      }
-      c.closePath();
-    } else if (shape==='butterfly') {
-      // Upper right wing
-      c.moveTo(cx+2,cy);
-      c.bezierCurveTo(cx+hw*0.3, cy-hh*0.85, cx+hw*1.05, cy-hh*0.8, cx+hw,      cy+2);
-      c.bezierCurveTo(cx+hw*0.65,cy+hh*0.12, cx+2,        cy+2,       cx+2,       cy);
-      // Upper left wing
-      c.moveTo(cx-2,cy);
-      c.bezierCurveTo(cx-hw*0.3, cy-hh*0.85, cx-hw*1.05, cy-hh*0.8, cx-hw,      cy+2);
-      c.bezierCurveTo(cx-hw*0.65,cy+hh*0.12, cx-2,        cy+2,       cx-2,       cy);
-      // Lower right wing (smaller)
-      c.moveTo(cx+2,cy+2);
-      c.bezierCurveTo(cx+hw*0.72,cy+hh*0.38, cx+hw*0.78, cy+hh*0.88, cx+hw*0.32,cy+hh*0.82);
-      c.bezierCurveTo(cx+hw*0.1, cy+hh*0.65, cx+2,        cy+hh*0.32, cx+2,       cy+2);
-      // Lower left wing (smaller)
-      c.moveTo(cx-2,cy+2);
-      c.bezierCurveTo(cx-hw*0.72,cy+hh*0.38, cx-hw*0.78, cy+hh*0.88, cx-hw*0.32,cy+hh*0.82);
-      c.bezierCurveTo(cx-hw*0.1, cy+hh*0.65, cx-2,        cy+hh*0.32, cx-2,       cy+2);
-    }
-  }
-
-  function render(img) {
-    ctx.clearRect(0,0,W,H);
-
-    if (shape==='bow') {
-      const cx=W/2, cy=H/2, lw=W*0.42, lh=H*0.36, kr=W*0.085;
-      // Shadow
-      ctx.save(); ctx.translate(1.5,1.5);
-      ctx.beginPath();
-      ctx.moveTo(cx-kr,cy);
-      ctx.bezierCurveTo(cx-lw*0.2,cy-lh*0.8,cx-lw*1.1,cy-lh*0.9,cx-lw,cy);
-      ctx.bezierCurveTo(cx-lw*1.1,cy+lh*0.9,cx-lw*0.2,cy+lh*0.8,cx-kr,cy);
-      ctx.moveTo(cx+kr,cy);
-      ctx.bezierCurveTo(cx+lw*0.2,cy-lh*0.8,cx+lw*1.1,cy-lh*0.9,cx+lw,cy);
-      ctx.bezierCurveTo(cx+lw*1.1,cy+lh*0.9,cx+lw*0.2,cy+lh*0.8,cx+kr,cy);
-      ctx.fillStyle='rgba(150,140,145,0.28)'; ctx.fill();
-      ctx.restore();
-      // Bow loops
-      ctx.beginPath();
-      ctx.moveTo(cx-kr,cy);
-      ctx.bezierCurveTo(cx-lw*0.2,cy-lh*0.8,cx-lw*1.1,cy-lh*0.9,cx-lw,cy);
-      ctx.bezierCurveTo(cx-lw*1.1,cy+lh*0.9,cx-lw*0.2,cy+lh*0.8,cx-kr,cy);
-      ctx.moveTo(cx+kr,cy);
-      ctx.bezierCurveTo(cx+lw*0.2,cy-lh*0.8,cx+lw*1.1,cy-lh*0.9,cx+lw,cy);
-      ctx.bezierCurveTo(cx+lw*1.1,cy+lh*0.9,cx+lw*0.2,cy+lh*0.8,cx+kr,cy);
-      ctx.fillStyle='#f4a8cc'; ctx.fill();
-      // Highlight inside each loop
-      ctx.fillStyle='rgba(249,200,224,0.55)';
-      ctx.beginPath(); ctx.ellipse(cx-lw*0.52,cy-lh*0.18,lw*0.2,lh*0.18,0,0,Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.ellipse(cx+lw*0.52,cy-lh*0.18,lw*0.2,lh*0.18,0,0,Math.PI*2); ctx.fill();
-      // Short tails
-      ctx.strokeStyle='#f4a8cc'; ctx.lineWidth=lh*0.42; ctx.lineCap='round';
-      ctx.beginPath(); ctx.moveTo(cx-kr*0.4,cy+kr*0.5); ctx.quadraticCurveTo(cx-lw*0.28,cy+lh*0.75,cx-lw*0.38,cy+lh*0.96); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(cx+kr*0.4,cy+kr*0.5); ctx.quadraticCurveTo(cx+lw*0.28,cy+lh*0.75,cx+lw*0.38,cy+lh*0.96); ctx.stroke();
-      // Center knot
-      ctx.fillStyle='#e87ab5';
-      ctx.beginPath(); ctx.ellipse(cx,cy,kr*1.3,kr*0.95,0,0,Math.PI*2); ctx.fill();
-
-    } else {
-      // Shadow
-      ctx.save(); ctx.translate(1.5,1.5); tracePath(ctx); ctx.fillStyle='rgba(150,140,145,0.35)'; ctx.fill(); ctx.restore();
-      // Fabric or grey fill via composite
-      const off=document.createElement('canvas'); off.width=W*S; off.height=H*S;
-      const ox=off.getContext('2d'); ox.scale(S,S);
-      tracePath(ox); ox.fillStyle='#000'; ox.fill();
-      ox.globalCompositeOperation='source-in';
-      if(img){ox.drawImage(img,0,0,W,H);}else{ox.fillStyle='#c0bcbe';ox.fillRect(0,0,W,H);}
-      ctx.drawImage(off,0,0,W,H);
-      // White outline
-      ctx.strokeStyle='rgba(255,255,255,0.45)'; ctx.lineWidth=1.5;
-      tracePath(ctx); ctx.stroke();
-    }
-  }
-
-  if(fabricUrl){const img=new Image();img.crossOrigin='anonymous';img.onload=()=>render(img);img.onerror=()=>render(null);img.src=fabricUrl;}
-  else{render(null);}
-}
-
-// ââ DOWNLOAD ââââââââââââââââââââââââââââââââââââââââââââââ
+// ── DOWNLOAD ──────────────────────────────────────────────
 function downloadBunting() {
   const tokens=getTokens(); if(!tokens.length) return;
   const btn=document.getElementById('downloadBtn'); btn.textContent='preparing...'; btn.disabled=true;
   const GAP=1, PAD=20, FH=FLAG_H, CH=CANVAS_H, SP_W=SPACE_W, SH=STR_H;
 
-  // Up to 6 drawable items (letters + shapes) per row
+  // Up to 6 drawable items per row
   const rows=[]; let row=[]; let dc=0;
   tokens.forEach(t=>{ row.push(t); if(t.type!=='space') dc++; if(dc===6){rows.push(row);row=[];dc=0;} });
   if(row.length) rows.push(row);
 
   const rowW=rows.reduce((max,r)=>{
-    let w=PAD*2; r.forEach(t=>{w+=(t.type==='space'?SP_W:t.type==='shape'?CH:getLetterW(t.char))+GAP;}); w-=GAP;
+    let w=PAD*2; r.forEach(t=>{w+=(t.type==='space'?SP_W:getLetterW(t.char))+GAP;}); w-=GAP;
     return Math.max(max,w);
   },0);
   const totalW=rowW;
@@ -1045,7 +769,7 @@ function downloadBunting() {
       rowTokens.forEach(t=>{
         if(t.type==='space'){x+=SP_W+GAP;return;}
         const fc=lcs[canvasIdx++];
-        const cw=fc?parseInt(fc.style.width):(t.type==='shape'?CH:getLetterW(t.char));
+        const cw=fc?parseInt(fc.style.width):(getLetterW(t.char));
         const cx=x+cw/2;
         // Drop string
         ctx.strokeStyle='#c084a8'; ctx.lineWidth=1.5;
