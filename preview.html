@@ -313,7 +313,7 @@ async function init() {
       new Promise(resolve => setTimeout(resolve, 3000))
     ]);
     fontsReady = true;
-    calcFlagSize();
+    calcFlagSize(getTokens());
     renderBunting();
 
   } catch(err) {
@@ -342,34 +342,49 @@ function updateSteps() {
 }
 
 // ── SIZING ────────────────────────────────────────────────
-function calcFlagSize() {
+function calcFlagSize(tokens) {
   const area = document.getElementById('previewArea'); if (!area) return;
   const innerW = area.clientWidth - 28;
-  // Fit 6 letters across so flags are large and readable
-  FLAG_W = Math.floor((innerW - 5) / 6);
+  const f = FONTS[currentFont];
+  // Measure at a reference size, then scale so the word fills the preview width
+  const REF = 100;
+  const probe = document.createElement('canvas');
+  probe.width = REF * 4; probe.height = REF * 4;
+  const pctx = probe.getContext('2d');
+  pctx.font = f.weight + ' ' + REF + 'px ' + f.family;
+  const refSidePad = Math.round(REF * 0.06);
+  const refSpaceW = Math.round(REF * 0.23);
+  const letterToks = (tokens || []).filter(t => t.type === 'letter');
+  const spaceToks = (tokens || []).filter(t => t.type === 'space');
+  let targetFont;
+  if (letterToks.length === 0) {
+    targetFont = Math.round(innerW / 4 * 0.6);
+  } else {
+    let refW = spaceToks.length * refSpaceW;
+    letterToks.forEach(t => { refW += pctx.measureText(t.char).width + refSidePad * 2; });
+    targetFont = Math.floor(innerW * 0.93 / refW * REF);
+    targetFont = Math.min(targetFont, Math.round(innerW * 0.45));
+  }
+  FONT_SIZE = Math.max(12, targetFont);
+  FLAG_W = Math.round(FONT_SIZE / f.scale);
   SPACE_W = Math.round(FLAG_W * 0.38);
   STR_H = Math.round(FLAG_W * 0.18);
-  const f = FONTS[currentFont];
-  FONT_SIZE = Math.round(FLAG_W * f.scale);
-const probe = document.createElement('canvas');
-probe.width = FONT_SIZE * 3; probe.height = FONT_SIZE * 3;
-const pctx = probe.getContext('2d');
-pctx.font = f.weight + ' ' + FONT_SIZE + 'px ' + f.family;
-const m = pctx.measureText('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');
-const ascent = m.actualBoundingBoxAscent > 0 ? m.actualBoundingBoxAscent : FONT_SIZE * 0.78;
-const descent = m.actualBoundingBoxDescent > 0 ? m.actualBoundingBoxDescent : FONT_SIZE * 0.22;
-const pad = Math.round(FONT_SIZE * 0.08);
-CANVAS_H = Math.ceil(ascent + descent + pad * 2);
-FLAG_H = CANVAS_H;
-// Per-letter widths: each flag is exactly as wide as its letter (no overlap, no wasted space)
-const sidePad = Math.round(FONT_SIZE * 0.06);
-LETTER_WIDTHS = {};
-'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.split('').forEach(ch => {
-LETTER_WIDTHS[ch] = Math.ceil(pctx.measureText(ch).width) + sidePad * 2;
-});
-CANVAS_W = Math.max(...Object.values(LETTER_WIDTHS));
+  probe.width = FONT_SIZE * 4; probe.height = FONT_SIZE * 4;
+  pctx.font = f.weight + ' ' + FONT_SIZE + 'px ' + f.family;
+  const m = pctx.measureText('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');
+  const ascent = m.actualBoundingBoxAscent > 0 ? m.actualBoundingBoxAscent : FONT_SIZE * 0.78;
+  const descent = m.actualBoundingBoxDescent > 0 ? m.actualBoundingBoxDescent : FONT_SIZE * 0.22;
+  const pad = Math.round(FONT_SIZE * 0.08);
+  CANVAS_H = Math.ceil(ascent + descent + pad * 2);
+  FLAG_H = CANVAS_H;
+  const sidePad = Math.round(FONT_SIZE * 0.06);
+  LETTER_WIDTHS = {};
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.split('').forEach(ch => {
+    LETTER_WIDTHS[ch] = Math.ceil(pctx.measureText(ch).width) + sidePad * 2;
+  });
+  CANVAS_W = Math.max(...Object.values(LETTER_WIDTHS));
 }
-window.addEventListener('resize', () => { calcFlagSize(); renderBunting(); });
+window.addEventListener('resize', () => { calcFlagSize(getTokens()); renderBunting(); });
 
 // ── FABRIC PICKER ─────────────────────────────────────────
 function toggleFabric(id) {
@@ -590,6 +605,7 @@ function toggleLock(key) {
 function renderBunting() {
   if (!fontsReady) return;
   const tokens = getTokens(), pool = getPool();
+  calcFlagSize(tokens);
   const wrap = document.getElementById('buntingWrap');
   const strLine = document.getElementById('buntingStringLine');
   const dlBtn = document.getElementById('downloadBtn');
@@ -605,14 +621,14 @@ function renderBunting() {
   dlBtn.disabled = false;
   wrap.innerHTML = '';
 
-  // Break tokens into rows of 9 max (to match flag sizing)
+  // Break tokens into rows by pixel width so each row fits the preview
+  const previewInnerW = (document.getElementById('previewArea') || {clientWidth:800}).clientWidth - 28;
   const rows = [];
-  let row = [];
-  let letterCount = 0;
+  let row = [], rowW = 0;
   tokens.forEach(token => {
-    row.push(token);
-    if (token.type === 'letter') letterCount++;
-    if (letterCount === 9) { rows.push(row); row=[]; letterCount=0; }
+    const tokW = token.type === 'space' ? SPACE_W : getLetterW(token.char);
+    if (row.length > 0 && rowW + tokW > previewInnerW) { rows.push(row); row = []; rowW = 0; }
+    row.push(token); rowW += tokW;
   });
   if (row.length) rows.push(row);
 
