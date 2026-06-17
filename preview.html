@@ -349,19 +349,24 @@ function calcFlagSize() {
   STR_H = Math.round(FLAG_W * 0.18);
   const f = FONTS[currentFont];
   FONT_SIZE = Math.round(FLAG_W * f.scale);
-  const probe = document.createElement('canvas');
-  probe.width = FONT_SIZE * 3; probe.height = FONT_SIZE * 3;
-  const pctx = probe.getContext('2d');
-  pctx.font = f.weight + ' ' + FONT_SIZE + 'px ' + f.family;
-  const m = pctx.measureText('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');
-  const ascent  = m.actualBoundingBoxAscent  > 0 ? m.actualBoundingBoxAscent  : FONT_SIZE * 0.78;
-  const descent = m.actualBoundingBoxDescent > 0 ? m.actualBoundingBoxDescent : FONT_SIZE * 0.22;
-  const pad = Math.round(FONT_SIZE * 0.08);
-  CANVAS_H = Math.ceil(ascent + descent + pad * 2);
-  FLAG_H = CANVAS_H;
-  let maxW = 0;
-  'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(ch => { const w = pctx.measureText(ch).width; if (w > maxW) maxW = w; });
-  CANVAS_W = Math.ceil(Math.max(FLAG_W, maxW) + Math.round(FONT_SIZE * 0.06) * 2);
+const probe = document.createElement('canvas');
+probe.width = FONT_SIZE * 3; probe.height = FONT_SIZE * 3;
+const pctx = probe.getContext('2d');
+// Shrink font until the widest letter fits within FLAG_W (prevents overlap)
+let maxW = FLAG_W + 1;
+while (FONT_SIZE > 10 && maxW > FLAG_W) {
+pctx.font = f.weight + ' ' + FONT_SIZE + 'px ' + f.family;
+maxW = 0;
+'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(ch => { const w = pctx.measureText(ch).width; if (w > maxW) maxW = w; });
+if (maxW > FLAG_W) FONT_SIZE = Math.floor(FONT_SIZE * 0.96);
+}
+const m = pctx.measureText('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');
+const ascent = m.actualBoundingBoxAscent > 0 ? m.actualBoundingBoxAscent : FONT_SIZE * 0.78;
+const descent = m.actualBoundingBoxDescent > 0 ? m.actualBoundingBoxDescent : FONT_SIZE * 0.22;
+const pad = Math.round(FONT_SIZE * 0.08);
+CANVAS_H = Math.ceil(ascent + descent + pad * 2);
+FLAG_H = CANVAS_H;
+CANVAS_W = FLAG_W;
 }
 window.addEventListener('resize', () => { calcFlagSize(); renderBunting(); });
 
@@ -719,7 +724,7 @@ function drawLetterFlag(container, letter, fabricUrl) {
   const canvas = document.createElement('canvas');
   canvas.width=W*S; canvas.height=H*S;
   canvas.style.width=W+'px'; canvas.style.height=H+'px';
-  canvas.style.position='relative'; canvas.style.left=((FLAG_W-W)/2)+'px';
+  canvas.style.position='relative'; canvas.style.left='0';
   container.appendChild(canvas);
   const ctx=canvas.getContext('2d'); ctx.scale(S,S);
   const f=FONTS[currentFont];
