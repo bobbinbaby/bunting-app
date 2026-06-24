@@ -282,7 +282,7 @@ async function init() {
     document.title = (maker.business_name || maker.slug) + ' — Bunting Previewer';
     const nameEl = document.getElementById('businessName');
     nameEl.textContent = maker.business_name || maker.slug;
-    currentFont = maker.font || 'passion';
+    currentFont = (maker.font && FONTS[maker.font]) ? maker.font : 'passion';
     nameEl.className = 'business-name ' + currentFont;
 
     // Load fabrics
