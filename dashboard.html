@@ -283,7 +283,9 @@ async function init() {
 
   // Set active font from saved preference
   const savedFont = maker.font || 'passion';
-  document.getElementById('font-' + savedFont).classList.add('active');
+  const fontEl = document.getElementById('font-' + savedFont);
+  if (fontEl) fontEl.classList.add('active');
+  else document.getElementById('font-passion').classList.add('active');
 
   await loadFabrics();
   document.getElementById('loadingScreen').style.display = 'none';
